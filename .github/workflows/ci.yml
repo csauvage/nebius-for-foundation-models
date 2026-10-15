@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  api-tests:
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show Swift toolchain
+        run: swift --version
+      - name: Test HTTP and SSE protocol
+        run: swift run NebiusAPITests
+      - name: Test Tavily HTTP protocol
+        run: swift run TavilyAPITests
+      - name: Verify model catalog snapshot
+        run: >-
+          swift run UpdateNebiusModelCatalog
+          --input Tools/CatalogSnapshots/models_info-2026-10-15.json
+          --snapshot-date 2026-10-15
+          --check

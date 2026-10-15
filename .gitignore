@@ -1,0 +1,20 @@
+.DS_Store
+.build/
+.swiftpm/
+DerivedData/
+xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Standalone app, maintained separately from the Swift package
+/Examples/NebiusChat/
+/Tests/NebiusChatTests/
+
+# Local presentation drafts
+/Claude outputs/
+
+# Local PDF analysis artifacts
+tmp/

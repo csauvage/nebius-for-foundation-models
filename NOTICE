@@ -1,0 +1,10 @@
+NebiusForFoundationModels
+Copyright 2026 BNC Consulting
+
+The Foundation Models request translation and streaming design was informed
+by Apple's Foundation Models Utilities project, licensed under Apache 2.0:
+https://github.com/apple/foundation-models-utilities
+
+Nebius and Token Factory are trademarks of their respective owners. This
+community package is not an official Nebius product unless and until Nebius
+adopts and publishes it as such.
