@@ -7,7 +7,7 @@ import Foundation
 
 /// The public Token Factory catalog frozen for a package release.
 public enum NebiusModelCatalog {
-  public static let snapshotDate = "2026-10-15"
+  public static let snapshotDate = "2026-10-27"
   public static let sourceURL = URL(
     string: "https://tokenfactory.nebius.com/api/public/models_info"
   )!
@@ -27,6 +27,22 @@ public enum NebiusModelCatalog {
       tags: [],
       useCases: [.dedicatedEndpoint, .text, .reasoning, .functionCalling, .code, .contextAndRAG, .image, .video, .responsesAPI],
       regions: [.usCentral1],
+      capabilities: [.vision, .toolCalling, .reasoning]
+    ),
+    NebiusCatalogModel(
+      id: "MiniMaxAI/MiniMax-M3.1-Flash",
+      name: "MiniMax-M3.1-Flash",
+      vendor: "minimaxai",
+      modality: .imageToText,
+      description: "MiniMax-M3.1-Flash is a native multimodal mixture-of-experts model for coding, agentic workflows, computer use, and cybersecurity. It supports text, image, and video inputs with a context window of up to 1M tokens.",
+      contextWindow: 1_048_576,
+      inputPricePerMillionTokens: 0.15,
+      outputPricePerMillionTokens: 0.6,
+      tokensPerSecond: 181.46,
+      quantization: "fp4",
+      tags: [],
+      useCases: [.dedicatedEndpoint, .text, .image, .code, .functionCalling, .responsesAPI, .reasoning],
+      regions: [.usNorth1],
       capabilities: [.vision, .toolCalling, .reasoning]
     ),
     NebiusCatalogModel(
@@ -190,6 +206,22 @@ public enum NebiusModelCatalog {
       capabilities: [.vision]
     ),
     NebiusCatalogModel(
+      id: "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      name: "DeepSeek V4.1 Flash 1017",
+      vendor: "deepseek",
+      modality: .imageToText,
+      description: "DeepSeek’s multimodal Flash model for reasoning, coding and tool-driven workflows, with text and image input and text output.",
+      contextWindow: 1_048_576,
+      inputPricePerMillionTokens: 0.3,
+      outputPricePerMillionTokens: 1.2,
+      tokensPerSecond: 738,
+      quantization: "fp8",
+      tags: [],
+      useCases: [.dedicatedEndpoint, .text, .image, .code, .functionCalling, .reasoning, .responsesAPI],
+      regions: [.usNorth1],
+      capabilities: [.vision, .toolCalling, .reasoning]
+    ),
+    NebiusCatalogModel(
       id: "google/gemma-3-27b-it",
       name: "Gemma-3-27b-it",
       vendor: "google",
@@ -204,6 +236,22 @@ public enum NebiusModelCatalog {
       useCases: [.text, .image, .functionCalling],
       regions: [.euNorth1],
       capabilities: [.vision, .toolCalling]
+    ),
+    NebiusCatalogModel(
+      id: "meta-models/muse-spark-open",
+      name: "Muse Spark Open",
+      vendor: "meta",
+      modality: .imageToText,
+      description: "Meta’s 816B-parameter mixture-of-experts model for coding and agentic workflows, with about 42B active parameters, image and video input, reasoning and tool use.",
+      contextWindow: 1_048_576,
+      inputPricePerMillionTokens: 1.25,
+      outputPricePerMillionTokens: 4.25,
+      tokensPerSecond: 143,
+      quantization: "fp4",
+      tags: [],
+      useCases: [.dedicatedEndpoint, .text, .image, .video, .code, .reasoning, .functionCalling, .responsesAPI],
+      regions: [.usNorth1],
+      capabilities: [.vision, .toolCalling, .reasoning]
     ),
     NebiusCatalogModel(
       id: "moonshotai/Kimi-K2.6",
@@ -286,6 +334,22 @@ public enum NebiusModelCatalog {
       capabilities: [.toolCalling, .reasoning]
     ),
     NebiusCatalogModel(
+      id: "nvidia/Nemotron-3.5-Super-VL",
+      name: "Nemotron 3.5 Super VL",
+      vendor: "nvidia",
+      modality: .imageToText,
+      description: "NVIDIA's multimodal model for visual understanding, coding, reasoning, and tool use. It processes text, images, and video to generate text responses.",
+      contextWindow: 1_048_576,
+      inputPricePerMillionTokens: 0.3,
+      outputPricePerMillionTokens: 0.9,
+      tokensPerSecond: 282.4,
+      quantization: "bf16",
+      tags: [],
+      rawUseCases: ["dedicated-endpoint", "text", "image", "video", "code", "function_calling", "reasoning", "responses_api", "context_and_rag", "image2text"],
+      regions: [.usNorth1],
+      capabilities: [.vision, .toolCalling, .reasoning]
+    ),
+    NebiusCatalogModel(
       id: "nvidia/Nemotron-3_5-Lightning",
       name: "Nemotron-3.5-Lightning",
       vendor: "nvidia",
@@ -296,8 +360,8 @@ public enum NebiusModelCatalog {
       outputPricePerMillionTokens: 0.24,
       tokensPerSecond: 314.12,
       quantization: "bf16",
-      tags: ["1M context", "reasoning", "code", "function calling", "MTP"],
-      useCases: [.text, .reasoning, .functionCalling, .code, .contextAndRAG, .responsesAPI],
+      tags: [],
+      useCases: [.dedicatedEndpoint, .text, .reasoning, .functionCalling, .code, .contextAndRAG, .responsesAPI],
       regions: [.euNorth1],
       capabilities: [.toolCalling, .reasoning]
     ),
@@ -348,6 +412,22 @@ public enum NebiusModelCatalog {
       useCases: [.text, .image, .summarization, .contextAndRAG],
       regions: [.euNorth1],
       capabilities: [.vision, .structuredOutput]
+    ),
+    NebiusCatalogModel(
+      id: "reflection/beam",
+      name: "Reflection Beam 1.0",
+      vendor: "reflection",
+      modality: .textToText,
+      description: "Beam is Reflection’s open-weight, instruction-tuned text model for coding, reasoning and agentic tool use. Its mixture-of-experts architecture has 501.3B total parameters and 23.4B active parameters. It supports a 1M-token context window, was developed predominantly for English, and has a knowledge cutoff of June 30, 2026.",
+      contextWindow: 1_048_576,
+      inputPricePerMillionTokens: 0.25,
+      outputPricePerMillionTokens: 1,
+      tokensPerSecond: 611,
+      quantization: "fp4",
+      tags: [],
+      useCases: [.dedicatedEndpoint, .text, .code, .functionCalling, .reasoning, .responsesAPI],
+      regions: [.usNorth1],
+      capabilities: [.toolCalling, .reasoning]
     ),
     NebiusCatalogModel(
       id: "zai-org/GLM-5.1",

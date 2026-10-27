@@ -207,16 +207,20 @@ struct NebiusAPITests {
   private static func catalogSnapshot() throws {
     let expectedIDs = [
       "deepseek-ai/DeepSeek-V4.1-Flash",
+      "deepseek-ai/DeepSeek-V4.1-Flash-1017",
       "deepseek-ai/DeepSeek-V4-Flash-0731",
       "deepseek-ai/DeepSeek-V4-Pro",
       "deepseek-ai/DeepSeek-V4-Pro-0813",
       "google/gemma-3-27b-it",
+      "meta-models/muse-spark-open",
       "MiniMaxAI/MiniMax-M3",
+      "MiniMaxAI/MiniMax-M3.1-Flash",
       "moonshotai/Kimi-K2.6",
       "moonshotai/Kimi-K2.7-Code",
       "moonshotai/Kimi-K3",
       "NousResearch/Hermes-4-405B",
       "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3.5-Super-VL",
       "nvidia/nemotron-3-super-120b-a12b",
       "nvidia/Nemotron-3-Ultra-550b-a55b",
       "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
@@ -227,19 +231,20 @@ struct NebiusAPITests {
       "Qwen/Qwen3-Embedding-8B",
       "Qwen/Qwen3.5-397B-A17B",
       "Qwen/Qwen3.8-27B",
+      "reflection/beam",
       "zai-org/GLM-5.1",
       "zai-org/GLM-5.2",
       "zai-org/GLM-5.3",
       "zai-org/GLM-5.3-Flash",
     ].sorted()
 
-    try expect(NebiusModelCatalog.snapshotDate == "2026-10-15", "Wrong snapshot date")
+    try expect(NebiusModelCatalog.snapshotDate == "2026-10-27", "Wrong snapshot date")
     try expect(NebiusModelCatalog.all.map(\.id) == expectedIDs, "Catalog IDs changed")
-    try expect(Set(NebiusModelCatalog.all.map(\.id)).count == 25, "Catalog IDs are not unique")
-    try expect(NebiusModelCatalog.textGeneration.count == 18, "Wrong text model count")
-    try expect(NebiusModelCatalog.visionLanguage.count == 6, "Wrong vision model count")
+    try expect(Set(NebiusModelCatalog.all.map(\.id)).count == 30, "Catalog IDs are not unique")
+    try expect(NebiusModelCatalog.textGeneration.count == 19, "Wrong text model count")
+    try expect(NebiusModelCatalog.visionLanguage.count == 10, "Wrong vision model count")
     try expect(NebiusModelCatalog.embeddings.count == 1, "Wrong embedding model count")
-    try expect(NebiusModelCatalog.generative.count == 24, "Wrong generative model count")
+    try expect(NebiusModelCatalog.generative.count == 29, "Wrong generative model count")
 
     let embedding = NebiusModelCatalog.model(id: "Qwen/Qwen3-Embedding-8B")
     try expect(embedding?.languageModel == nil, "Embedding model became generative")
@@ -270,9 +275,10 @@ struct NebiusAPITests {
       guard let rawUseCases = family["use_cases"] as? [String],
         let flavors = family["flavors"] as? [[String: Any]]
       else { throw TestFailure(description: "Missing use cases or flavors in catalog fixture") }
+      let typedUseCaseValues = rawUseCases.filter { $0 != "image2text" }
       let useCases = try JSONDecoder().decode(
         [NebiusCatalogModel.UseCase].self,
-        from: JSONSerialization.data(withJSONObject: rawUseCases))
+        from: JSONSerialization.data(withJSONObject: typedUseCaseValues))
       for flavor in flavors {
         guard let id = flavor["model_id"] as? String,
           let regionObjects = flavor["regions"] as? [[String: String]],
@@ -288,12 +294,13 @@ struct NebiusAPITests {
           [NebiusCatalogModel.Region].self,
           from: JSONSerialization.data(withJSONObject: rawRegions))
         try expect(model.useCases == useCases, "Use-case mapping changed for \(id)")
+        try expect(model.rawUseCases == rawUseCases, "Raw use cases changed for \(id)")
         try expect(model.regions == regions, "Region mapping changed for \(id)")
         let encodedUseCases = try JSONDecoder().decode(
           [String].self, from: JSONEncoder().encode(model.useCases))
         let encodedRegions = try JSONDecoder().decode(
           [String].self, from: JSONEncoder().encode(model.regions))
-        try expect(encodedUseCases == rawUseCases, "Use-case encoding changed for \(id)")
+        try expect(encodedUseCases == typedUseCaseValues, "Use-case encoding changed for \(id)")
         try expect(encodedRegions == rawRegions, "Region encoding changed for \(id)")
         try expect(
           model.supportsFineTuning == rawUseCases.contains("fine_tune"),

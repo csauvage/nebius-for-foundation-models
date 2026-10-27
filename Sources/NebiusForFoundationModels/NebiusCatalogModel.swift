@@ -55,6 +55,8 @@ public struct NebiusCatalogModel: Hashable, Sendable, Identifiable {
   public let quantization: String?
   public let tags: [String]
   public let useCases: [UseCase]
+  /// Provider values, including newer use cases not represented by `UseCase`.
+  public let rawUseCases: [String]
   public let regions: [Region]
   public let capabilities: NebiusModel.Capabilities
 
@@ -74,6 +76,34 @@ public struct NebiusCatalogModel: Hashable, Sendable, Identifiable {
     regions: [Region],
     capabilities: NebiusModel.Capabilities
   ) {
+    self.init(
+      id: id, name: name, vendor: vendor, modality: modality,
+      description: description, contextWindow: contextWindow,
+      inputPricePerMillionTokens: inputPricePerMillionTokens,
+      outputPricePerMillionTokens: outputPricePerMillionTokens,
+      tokensPerSecond: tokensPerSecond, quantization: quantization,
+      tags: tags, rawUseCases: useCases.map(\.rawValue),
+      regions: regions, capabilities: capabilities
+    )
+  }
+
+  /// Preserves provider metadata while exposing recognized values through `useCases`.
+  public init(
+    id: String,
+    name: String,
+    vendor: String,
+    modality: Modality,
+    description: String,
+    contextWindow: Int,
+    inputPricePerMillionTokens: Double,
+    outputPricePerMillionTokens: Double,
+    tokensPerSecond: Double?,
+    quantization: String?,
+    tags: [String],
+    rawUseCases: [String],
+    regions: [Region],
+    capabilities: NebiusModel.Capabilities
+  ) {
     self.id = id
     self.name = name
     self.vendor = vendor
@@ -85,7 +115,8 @@ public struct NebiusCatalogModel: Hashable, Sendable, Identifiable {
     self.tokensPerSecond = tokensPerSecond
     self.quantization = quantization
     self.tags = tags
-    self.useCases = useCases
+    self.useCases = rawUseCases.compactMap(UseCase.init(rawValue:))
+    self.rawUseCases = rawUseCases
     self.regions = regions
     self.capabilities = capabilities
   }

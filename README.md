@@ -60,11 +60,11 @@ The package declares older minimum platforms so the lower-level `NebiusAPI` targ
 
 ### Package in Xcode
 
-After the first push to `main`:
+Use the tagged release:
 
 1. Choose **File > Add Package Dependencies**.
 2. Enter `https://github.com/csauvage/nebius-for-foundation-models.git`.
-3. Select the `main` branch until a tagged release is available.
+3. Select **Up to Next Major Version**, starting from **1.1.0**.
 4. Add the `NebiusForFoundationModels` product to your application target.
 
 For local development, choose **Add Local** and select this directory instead.
@@ -73,18 +73,18 @@ Add `TavilyForFoundationModels` as well when the application needs Tavily tools.
 
 ### Remote SwiftPM dependency
 
-After the first push, use the `main` branch until the first tagged release is published:
+Add version 1.1.0 or a compatible later release:
 
 ```swift
 dependencies: [
   .package(
     url: "https://github.com/csauvage/nebius-for-foundation-models.git",
-    branch: "main"
+    from: "1.1.0"
   )
 ]
 ```
 
-Once a stable release is tagged, replace `branch: "main"` with a version requirement matching that release. Branch-based dependencies follow development and may include breaking changes.
+This version requirement accepts compatible releases below 2.0.0. Branch-based dependencies follow development and may include breaking changes.
 
 ## Quick start
 
@@ -111,24 +111,24 @@ The `.apiKey` mode is intended for simulators, local tools, and development. A k
 
 ## Static model catalog
 
-The package includes a **complete static snapshot of the public Token Factory catalog as of October 15, 2026**.
+The package includes a **complete static snapshot of the public Token Factory catalog as of October 27, 2026**.
 
 It contains:
 
-- **25 models** in total
-- **18 text-to-text models**
-- **6 image-to-text models**
+- **30 models** in total
+- **19 text-to-text models**
+- **10 image-to-text models**
 - **1 embedding model**
-- **24 generative models** usable through the Foundation Models adapter
+- **29 generative models** usable through the Foundation Models adapter
 
 No network-based model discovery occurs at runtime. The list will not unexpectedly change between the starter and the cheese course.
 
 ### Accessing the catalog
 
 ```swift
-NebiusModelCatalog.snapshotDate  // "2026-10-15"
-NebiusModelCatalog.all           // 25 entries
-NebiusModelCatalog.generative    // 24 generative models
+NebiusModelCatalog.snapshotDate  // "2026-10-27"
+NebiusModelCatalog.all           // 30 entries
+NebiusModelCatalog.generative    // 29 generative models
 NebiusModelCatalog.textGeneration
 NebiusModelCatalog.visionLanguage
 NebiusModelCatalog.embeddings    // 1 embedding model
@@ -152,6 +152,7 @@ Each `NebiusCatalogModel` exposes:
 - Reported throughput in tokens per second, when available
 - Quantization
 - Tags and typed use cases (`NebiusCatalogModel.UseCase`)
+- Original provider use-case strings (`rawUseCases`), including values added after the enum was defined
 - Typed deployment regions (`NebiusCatalogModel.Region`)
 - Capabilities understood by the adapter
 - `supportsFineTuning` and `supportsResponsesAPI`
@@ -160,17 +161,25 @@ Each `NebiusCatalogModel` exposes:
 
 `languageModel` returns a configured `NebiusModel` for generative entries. It deliberately returns `nil` for embeddings because Apple's generative `LanguageModel` protocol does not represent embedding models. One should not grate an embedding over pasta; it is simply the wrong utensil.
 
-### Complete list as of October 15, 2026
+### Complete list as of October 27, 2026
 
-The October 15 refresh retains all 25 models from the October 7 snapshot. The source response is saved in `Tools/CatalogSnapshots/models_info-2026-10-15.json`.
+The October 27 refresh retains all 25 models from the October 15 snapshot and adds:
 
-Model IDs, prices, capabilities, and context limits are unchanged. The public catalog now lists `deepseek-ai/DeepSeek-V4-Pro-0813` in `uk-south1` instead of `us-north1`.
+- **MiniMax-M3.1-Flash** ![New in v1.1.0](https://img.shields.io/badge/new-v1.1.0-brightgreen.svg?style=flat-square)
+- **DeepSeek V4.1 Flash 1017** ![New in v1.1.0](https://img.shields.io/badge/new-v1.1.0-brightgreen.svg?style=flat-square)
+- **Muse Spark Open** ![New in v1.1.0](https://img.shields.io/badge/new-v1.1.0-brightgreen.svg?style=flat-square)
+- **Nemotron 3.5 Super VL** ![New in v1.1.0](https://img.shields.io/badge/new-v1.1.0-brightgreen.svg?style=flat-square)
+- **Reflection Beam 1.0** ![New in v1.1.0](https://img.shields.io/badge/new-v1.1.0-brightgreen.svg?style=flat-square)
 
-Prices are public Token Factory list rates in **USD per 1 million tokens**, verified on **October 15, 2026** against the [public model catalog](https://tokenfactory.nebius.com/api/public/models_info). They match the package's October 15 snapshot. Cache discounts, service-tier adjustments, dedicated capacity, and negotiated rates are outside these columns; consult [Token Factory pricing](https://nebius.com/token-factory/prices) for billing details.
+Their input and output prices are listed in the tables below. The source response is saved in `Tools/CatalogSnapshots/models_info-2026-10-27.json`.
+
+Existing model IDs, input/output prices, capabilities, and context limits are unchanged. Nemotron 3.5 Lightning now advertises the `dedicated-endpoint` use case and no longer lists descriptive tags. The new `image2text` use case on Nemotron 3.5 Super VL is preserved in `rawUseCases`; the existing `UseCase` enum remains unchanged for source compatibility. Image input continues to use the model's `.vision` capability.
+
+Prices are public Token Factory list rates in **USD per 1 million tokens**, verified on **October 27, 2026** against the [public model catalog](https://tokenfactory.nebius.com/api/public/models_info). They match the package's October 27 snapshot. Cache discounts, service-tier adjustments, dedicated capacity, and negotiated rates are outside these columns; consult [Token Factory pricing](https://nebius.com/token-factory/prices) for billing details.
 
 **Features:** Vision = image input; Tools = function calling; Reasoning = reasoning capability; JSON = the package's structured-output flag, inferred from the provider's `JSON mode` tag. These labels follow the committed catalog's capability flags; individual JSON Schema constraints depend on the provider. Only advertised features are listed. Categories follow the provider's modality, so some text-to-text entries also advertise Vision.
 
-#### Text to text — 18 models
+#### Text to text — 19 models
 
 | Model ID | Context (tokens) | Features | Input ($/1M) | Output ($/1M) |
 | --- | ---: | --- | ---: | ---: |
@@ -189,18 +198,23 @@ Prices are public Token Factory list rates in **USD per 1 million tokens**, veri
 | `nvidia/Nemotron-3_5-Lightning` | 1,048,576 | Tools, Reasoning | 0.06 | 0.24 |
 | `nvidia/nemotron-3-super-120b-a12b` | 262,144 | Tools, Reasoning | 0.30 | 0.90 |
 | `openai/gpt-oss-120b` | 131,072 | Tools, Reasoning, JSON | 0.15 | 0.60 |
+| `reflection/beam` ![New in v1.1.0](https://img.shields.io/badge/new-v1.1.0-brightgreen.svg?style=flat-square) | 1,048,576 | Tools, Reasoning | 0.25 | 1.00 |
 | `zai-org/GLM-5.1` | 202,752 | Tools, Reasoning, JSON | 1.40 | 4.40 |
 | `zai-org/GLM-5.2` | 1,048,576 | Tools, Reasoning | 1.40 | 4.40 |
 | `zai-org/GLM-5.3` | 1,024,000 | Tools, Reasoning | 1.40 | 4.40 |
 
-#### Image to text — 6 models
+#### Image to text — 10 models
 
 | Model ID | Context (tokens) | Features | Input ($/1M) | Output ($/1M) |
 | --- | ---: | --- | ---: | ---: |
+| `MiniMaxAI/MiniMax-M3.1-Flash` ![New in v1.1.0](https://img.shields.io/badge/new-v1.1.0-brightgreen.svg?style=flat-square) | 1,048,576 | Vision, Tools, Reasoning | 0.15 | 0.60 |
 | `Qwen/Qwen3.8-27B` | 262,144 | Vision, Tools, Reasoning | 0.45 | 3.00 |
 | `deepseek-ai/DeepSeek-V4.1-Flash` | 1,048,000 | Vision | 0.30 | 1.20 |
+| `deepseek-ai/DeepSeek-V4.1-Flash-1017` ![New in v1.1.0](https://img.shields.io/badge/new-v1.1.0-brightgreen.svg?style=flat-square) | 1,048,576 | Vision, Tools, Reasoning | 0.30 | 1.20 |
+| `meta-models/muse-spark-open` ![New in v1.1.0](https://img.shields.io/badge/new-v1.1.0-brightgreen.svg?style=flat-square) | 1,048,576 | Vision, Tools, Reasoning | 1.25 | 4.25 |
 | `moonshotai/Kimi-K2.6` | 262,144 | Vision, Tools, Reasoning | 0.95 | 4.00 |
 | `moonshotai/Kimi-K3` | 1,024,000 | Vision, Tools, Reasoning | 3.00 | 15.00 |
+| `nvidia/Nemotron-3.5-Super-VL` ![New in v1.1.0](https://img.shields.io/badge/new-v1.1.0-brightgreen.svg?style=flat-square) | 1,048,576 | Vision, Tools, Reasoning | 0.30 | 0.90 |
 | `openbmb/MiniCPM-V-4_5` | 32,000 | Vision, JSON | 0.658 | 1.11 |
 | `zai-org/GLM-5.3-Flash` | 1,024,000 | Vision, Tools, Reasoning | 0.15 | 0.50 |
 
@@ -271,7 +285,7 @@ swift run UpdateNebiusModelCatalog
 
 The default snapshot date is the current UTC date.
 
-The generator rejects unknown use cases or regions before changing the Swift file. When the public API adds a value, add its case to `NebiusCatalogModel.UseCase` or `.Region` and its mapping in `UpdateNebiusModelCatalog`, then regenerate and run the tests.
+The generator rejects unreviewed use cases or regions before changing the Swift file. New use cases can be added to `rawOnlyUseCases` in `UpdateNebiusModelCatalog` and retained in `rawUseCases` without extending the public enum. Review source compatibility before adding enum cases, then regenerate and run the tests.
 
 ### Reproducible update from saved JSON
 
@@ -281,7 +295,7 @@ curl https://tokenfactory.nebius.com/api/public/models_info \
 
 swift run UpdateNebiusModelCatalog \
   --input models_info.json \
-  --snapshot-date 2026-10-15
+  --snapshot-date 2026-10-27
 ```
 
 ### Validation without modification
@@ -291,7 +305,7 @@ The `--check` option compares the expected output with the file checked into the
 ```bash
 swift run UpdateNebiusModelCatalog \
   --input models_info.json \
-  --snapshot-date 2026-10-15 \
+  --snapshot-date 2026-10-27 \
   --check
 ```
 
@@ -822,7 +836,7 @@ The tests cover:
 - Authentication header forwarding
 - SSE parsing for text, reasoning, and usage
 - Structured API errors
-- The snapshot date, all 25 exact model IDs, and modality counts
+- The snapshot date, all 30 exact model IDs, and modality counts
 - Model ID uniqueness
 - Important capabilities on representative catalog entries
 
@@ -841,8 +855,8 @@ To validate catalog reproducibility independently:
 
 ```bash
 swift run UpdateNebiusModelCatalog \
-  --input Tools/CatalogSnapshots/models_info-2026-10-15.json \
-  --snapshot-date 2026-10-15 \
+  --input Tools/CatalogSnapshots/models_info-2026-10-27.json \
+  --snapshot-date 2026-10-27 \
   --check
 ```
 
