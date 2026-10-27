@@ -345,7 +345,7 @@ public enum NebiusModelCatalog {
       tokensPerSecond: 282.4,
       quantization: "bf16",
       tags: [],
-      rawUseCases: ["dedicated-endpoint", "text", "image", "video", "code", "function_calling", "reasoning", "responses_api", "context_and_rag", "image2text"],
+      useCases: [.dedicatedEndpoint, .text, .image, .video, .code, .functionCalling, .reasoning, .responsesAPI, .contextAndRAG, .imageToText],
       regions: [.usNorth1],
       capabilities: [.vision, .toolCalling, .reasoning]
     ),

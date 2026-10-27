@@ -275,10 +275,9 @@ struct NebiusAPITests {
       guard let rawUseCases = family["use_cases"] as? [String],
         let flavors = family["flavors"] as? [[String: Any]]
       else { throw TestFailure(description: "Missing use cases or flavors in catalog fixture") }
-      let typedUseCaseValues = rawUseCases.filter { $0 != "image2text" }
       let useCases = try JSONDecoder().decode(
         [NebiusCatalogModel.UseCase].self,
-        from: JSONSerialization.data(withJSONObject: typedUseCaseValues))
+        from: JSONSerialization.data(withJSONObject: rawUseCases))
       for flavor in flavors {
         guard let id = flavor["model_id"] as? String,
           let regionObjects = flavor["regions"] as? [[String: String]],
@@ -294,13 +293,12 @@ struct NebiusAPITests {
           [NebiusCatalogModel.Region].self,
           from: JSONSerialization.data(withJSONObject: rawRegions))
         try expect(model.useCases == useCases, "Use-case mapping changed for \(id)")
-        try expect(model.rawUseCases == rawUseCases, "Raw use cases changed for \(id)")
         try expect(model.regions == regions, "Region mapping changed for \(id)")
         let encodedUseCases = try JSONDecoder().decode(
           [String].self, from: JSONEncoder().encode(model.useCases))
         let encodedRegions = try JSONDecoder().decode(
           [String].self, from: JSONEncoder().encode(model.regions))
-        try expect(encodedUseCases == typedUseCaseValues, "Use-case encoding changed for \(id)")
+        try expect(encodedUseCases == rawUseCases, "Use-case encoding changed for \(id)")
         try expect(encodedRegions == rawRegions, "Region encoding changed for \(id)")
         try expect(
           model.supportsFineTuning == rawUseCases.contains("fine_tune"),

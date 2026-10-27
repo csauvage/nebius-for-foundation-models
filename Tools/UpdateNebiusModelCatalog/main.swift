@@ -65,7 +65,7 @@ private enum GeneratorError: LocalizedError {
     case .invalidResponse(let status): "Catalog request failed with HTTP \(status)."
     case .unknownCatalogValue(let field, let value, let modelID):
       "Unknown catalog \(field) value '\(value)' for \(modelID). "
-        + "Review its catalog representation and generator mapping before regenerating."
+        + "Add its NebiusCatalogModel enum case and generator mapping before regenerating."
     case .stale(let url):
       "The generated catalog differs from \(url.path). Run the updater without --check."
     }
@@ -90,6 +90,7 @@ private struct UpdateNebiusModelCatalog {
     "fine_tune": "fineTune",
     "function_calling": "functionCalling",
     "image": "image",
+    "image2text": "imageToText",
     "multilabel classification": "multilabelClassification",
     "multilingual": "multilingual",
     "pair classification": "pairClassification",
@@ -101,9 +102,6 @@ private struct UpdateNebiusModelCatalog {
     "text": "text",
     "video": "video",
   ]
-
-  // Reviewed provider metadata kept in rawUseCases without extending the public enum.
-  private static let rawOnlyUseCases: Set<String> = ["image2text"]
 
   private static let regionCases = [
     "eu-north1": "euNorth1",
@@ -249,10 +247,7 @@ private struct UpdateNebiusModelCatalog {
     let quantization = flavor.quantization.map(swiftString) ?? "nil"
     let tags = swiftArray(family.tags)
     let useCases = try enumArray(
-      family.useCases.filter { !rawOnlyUseCases.contains($0) },
-      cases: useCaseCases, field: "use_cases", modelID: flavor.modelID)
-    let useCasesArgument = family.useCases.contains(where: rawOnlyUseCases.contains)
-      ? "rawUseCases: \(swiftArray(family.useCases))" : "useCases: \(useCases)"
+      family.useCases, cases: useCaseCases, field: "use_cases", modelID: flavor.modelID)
     let regions = try enumArray(
       flavor.regions.map(\.name), cases: regionCases, field: "regions", modelID: flavor.modelID)
 
@@ -269,7 +264,7 @@ private struct UpdateNebiusModelCatalog {
             tokensPerSecond: \(speed),
             quantization: \(quantization),
             tags: \(tags),
-            \(useCasesArgument),
+            useCases: \(useCases),
             regions: \(regions),
             capabilities: \(capabilities)
           )

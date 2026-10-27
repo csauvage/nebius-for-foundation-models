@@ -152,7 +152,6 @@ Each `NebiusCatalogModel` exposes:
 - Reported throughput in tokens per second, when available
 - Quantization
 - Tags and typed use cases (`NebiusCatalogModel.UseCase`)
-- Original provider use-case strings (`rawUseCases`), including values added after the enum was defined
 - Typed deployment regions (`NebiusCatalogModel.Region`)
 - Capabilities understood by the adapter
 - `supportsFineTuning` and `supportsResponsesAPI`
@@ -173,7 +172,9 @@ The October 27 refresh retains all 25 models from the October 15 snapshot and ad
 
 Their input and output prices are listed in the tables below. The source response is saved in `Tools/CatalogSnapshots/models_info-2026-10-27.json`.
 
-Existing model IDs, input/output prices, capabilities, and context limits are unchanged. Nemotron 3.5 Lightning now advertises the `dedicated-endpoint` use case and no longer lists descriptive tags. The new `image2text` use case on Nemotron 3.5 Super VL is preserved in `rawUseCases`; the existing `UseCase` enum remains unchanged for source compatibility. Image input continues to use the model's `.vision` capability.
+Existing model IDs, input/output prices, capabilities, and context limits are unchanged. Nemotron 3.5 Lightning now advertises the `dedicated-endpoint` use case and no longer lists descriptive tags. The new `image2text` use case on Nemotron 3.5 Super VL is exposed as `UseCase.imageToText`. Image input continues to use the model's `.vision` capability.
+
+Version 1.1.0 adds a case to the public `UseCase` enum. Applications with exhaustive switches over this enum must handle `.imageToText` or add a `default` branch when upgrading.
 
 Prices are public Token Factory list rates in **USD per 1 million tokens**, verified on **October 27, 2026** against the [public model catalog](https://tokenfactory.nebius.com/api/public/models_info). They match the package's October 27 snapshot. Cache discounts, service-tier adjustments, dedicated capacity, and negotiated rates are outside these columns; consult [Token Factory pricing](https://nebius.com/token-factory/prices) for billing details.
 
@@ -285,7 +286,7 @@ swift run UpdateNebiusModelCatalog
 
 The default snapshot date is the current UTC date.
 
-The generator rejects unreviewed use cases or regions before changing the Swift file. New use cases can be added to `rawOnlyUseCases` in `UpdateNebiusModelCatalog` and retained in `rawUseCases` without extending the public enum. Review source compatibility before adding enum cases, then regenerate and run the tests.
+The generator rejects unknown use cases or regions before changing the Swift file. When the public API adds a value, review source compatibility, add its case to `NebiusCatalogModel.UseCase` or `.Region` and its mapping in `UpdateNebiusModelCatalog`, then regenerate and run the tests.
 
 ### Reproducible update from saved JSON
 
