@@ -259,6 +259,18 @@ struct NebiusAPITests {
       gptOSS?.capabilities.contains(.structuredOutput) == true,
       "gpt-oss-120b lost JSON mode"
     )
+
+    let newAliases: [NebiusModel] = [
+      .minimaxM31Flash, .deepSeekV41Flash1017, .museSparkOpen,
+      .nemotron35SuperVL, .reflectionBeam,
+    ]
+    try expect(Set(newAliases.map(\.id)).count == 5, "New aliases must identify distinct models")
+    for alias in newAliases {
+      let catalogModel = NebiusModelCatalog.model(id: alias.id)?.languageModel
+      try expect(
+        catalogModel == alias,
+        "Alias must preserve catalog identity and capabilities for \(alias.id)")
+    }
   }
 
   private static func catalogMetadata() throws {

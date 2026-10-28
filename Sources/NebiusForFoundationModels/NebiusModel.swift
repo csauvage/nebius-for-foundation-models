@@ -55,6 +55,31 @@ extension NebiusModel {
     id: "MiniMaxAI/MiniMax-M3"
   )
 
+  public static let minimaxM31Flash = NebiusModel(
+    id: "MiniMaxAI/MiniMax-M3.1-Flash",
+    capabilities: [.vision, .toolCalling, .reasoning]
+  )
+
+  public static let deepSeekV41Flash1017 = NebiusModel(
+    id: "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    capabilities: [.vision, .toolCalling, .reasoning]
+  )
+
+  public static let museSparkOpen = NebiusModel(
+    id: "meta-models/muse-spark-open",
+    capabilities: [.vision, .toolCalling, .reasoning]
+  )
+
+  public static let nemotron35SuperVL = NebiusModel(
+    id: "nvidia/Nemotron-3.5-Super-VL",
+    capabilities: [.vision, .toolCalling, .reasoning]
+  )
+
+  public static let reflectionBeam = NebiusModel(
+    id: "reflection/beam",
+    capabilities: [.toolCalling, .reasoning]
+  )
+
   public static let qwen35Large = NebiusModel(
     id: "Qwen/Qwen3.5-397B-A17B"
   )

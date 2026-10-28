@@ -229,7 +229,7 @@ The canonical list and its complete metadata live in `NebiusModelCatalog.generat
 
 ### Convenience constants
 
-A few constants remain available for commonly used generative models:
+Constants are available for commonly used generative models, including all five October 27 additions:
 
 ```swift
 .nemotron35Lightning
@@ -237,7 +237,23 @@ A few constants remain available for commonly used generative models:
 .qwen35Large
 .gptOSS120B
 .deepSeekV4Flash0731
+.minimaxM31Flash
+.deepSeekV41Flash1017
+.museSparkOpen
+.nemotron35SuperVL
+.reflectionBeam
 ```
+
+Use them directly when creating a model:
+
+```swift
+let model = NebiusLanguageModel(
+  name: .nemotron35SuperVL,
+  auth: .apiKey(apiKey)
+)
+```
+
+The five new aliases preserve their catalog capabilities, including image input for the four vision models. No catalog lookup or optional unwrapping is needed.
 
 ### Custom chat routes
 
