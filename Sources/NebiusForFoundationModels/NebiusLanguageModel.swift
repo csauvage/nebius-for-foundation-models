@@ -5,6 +5,7 @@
   import Foundation
   import FoundationModels
   public import NebiusAPI
+  import OSLog
 
   /// A Nebius Token Factory model exposed through Apple's Foundation Models
   /// framework.
@@ -20,6 +21,8 @@
   @available(macOS 27.0, iOS 27.0, visionOS 27.0, watchOS 27.0, *)
   public struct NebiusLanguageModel: Sendable {
     public static let defaultBaseURL = NebiusClient.defaultBaseURL
+    private static let logger = Logger(
+      subsystem: "NebiusForFoundationModels", category: "ModelDeprecation")
 
     public let model: NebiusModel
     public let baseURL: URL
@@ -56,6 +59,15 @@
       self.chatCompletionsPath = chatCompletionsPath
       self.timeout = timeout
       self.usageObserver = usageObserver
+      // String IDs cannot carry Swift availability annotations. Report catalog
+      // removals or deprecations when configuring an adapter, including its fast variant.
+      for id in Set([name.id, name.fastVariantID].compactMap { $0 }) {
+        if let message = NebiusModelCatalog.removalMessage(for: id)
+          ?? NebiusModelCatalog.model(id: id)?.deprecationMessage
+        {
+          Self.logger.warning("\(message, privacy: .public)")
+        }
+      }
     }
   }
 

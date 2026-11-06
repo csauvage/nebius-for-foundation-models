@@ -31,7 +31,7 @@ In short: Apple provides the plate, Nebius brings the models, and this package i
 - Image input for compatible models
 - Token usage, including cached and reasoning tokens when reported
 - Direct development authentication or a production relay
-- A complete, dated, static snapshot of the public model catalog
+- A dated model catalog that excludes announced Serverless withdrawals
 - An explicit catalog update tool
 - An independent HTTP/SSE layer that can be tested without Nebius credentials
 - Direct-key dedicated-endpoint management in the internal HTTP client and the iOS/macOS example
@@ -64,7 +64,7 @@ Use the tagged release:
 
 1. Choose **File > Add Package Dependencies**.
 2. Enter `https://github.com/csauvage/nebius-for-foundation-models.git`.
-3. Select **Up to Next Major Version**, starting from **1.1.0**.
+3. Select **Up to Next Major Version**, starting from **1.2.0**.
 4. Add the `NebiusForFoundationModels` product to your application target.
 
 For local development, choose **Add Local** and select this directory instead.
@@ -73,18 +73,21 @@ Add `TavilyForFoundationModels` as well when the application needs Tavily tools.
 
 ### Remote SwiftPM dependency
 
-Add version 1.1.0 or a compatible later release:
+Add version 1.2.0:
 
 ```swift
 dependencies: [
   .package(
     url: "https://github.com/csauvage/nebius-for-foundation-models.git",
-    from: "1.1.0"
+    from: "1.2.0"
   )
 ]
 ```
 
-This version requirement accepts compatible releases below 2.0.0. Branch-based dependencies follow development and may include breaking changes.
+This version requirement selects releases from 1.2.0 up to, but excluding, 2.0.0. Branch-based dependencies follow development.
+
+> [!IMPORTANT]
+> **v1.2.0 migration:** despite its minor version number, this release contains source-breaking model removals. Applications using removed constants must select their replacements; lookups of withdrawn IDs now return `nil`. See [Removed models and replacements](#removed-models-and-replacements) before upgrading from 1.1.0.
 
 ## Quick start
 
@@ -111,24 +114,24 @@ The `.apiKey` mode is intended for simulators, local tools, and development. A k
 
 ## Static model catalog
 
-The package includes a **complete static snapshot of the public Token Factory catalog as of October 27, 2026**.
+The package includes a **static model catalog based on Token Factory data from November 6, 2026**, with the 11 models scheduled for Serverless withdrawal on November 9 already excluded.
 
 It contains:
 
-- **30 models** in total
-- **19 text-to-text models**
-- **10 image-to-text models**
+- **20 models** in total after the preventive removals
+- **11 text-to-text models**
+- **8 image-to-text models**
 - **1 embedding model**
-- **29 generative models** usable through the Foundation Models adapter
+- **19 generative models** usable through the Foundation Models adapter
 
 No network-based model discovery occurs at runtime. The list will not unexpectedly change between the starter and the cheese course.
 
 ### Accessing the catalog
 
 ```swift
-NebiusModelCatalog.snapshotDate  // "2026-10-27"
-NebiusModelCatalog.all           // 30 entries
-NebiusModelCatalog.generative    // 29 generative models
+NebiusModelCatalog.snapshotDate  // "2026-11-06"
+NebiusModelCatalog.all           // 20 entries; withdrawn models are excluded
+NebiusModelCatalog.generative    // 19 generative models
 NebiusModelCatalog.textGeneration
 NebiusModelCatalog.visionLanguage
 NebiusModelCatalog.embeddings    // 1 embedding model
@@ -137,7 +140,7 @@ let entry = NebiusModelCatalog.model(id: "moonshotai/Kimi-K3")
 let model = entry?.languageModel
 
 let usToolModels = NebiusModelCatalog.generative.filter {
-  $0.useCases.contains(.functionCalling) && $0.regions.contains(.usCentral1)
+  !$0.isDeprecated && $0.useCases.contains(.functionCalling) && $0.regions.contains(.usCentral1)
 }
 ```
 
@@ -154,70 +157,53 @@ Each `NebiusCatalogModel` exposes:
 - Tags and typed use cases (`NebiusCatalogModel.UseCase`)
 - Typed deployment regions (`NebiusCatalogModel.Region`)
 - Capabilities understood by the adapter
+- `isDeprecated`, reflecting the provider flag in the saved snapshot
 - `supportsFineTuning` and `supportsResponsesAPI`
 
 `UseCase` and `Region` are string-backed enums with `Codable` and `CaseIterable` support. Use enum cases for comparisons and `.rawValue` for the provider's exact identifiers, such as `UseCase.functionCalling.rawValue` (`"function_calling"`) or `Region.usCentral1.rawValue` (`"us-central1"`).
 
 `languageModel` returns a configured `NebiusModel` for generative entries. It deliberately returns `nil` for embeddings because Apple's generative `LanguageModel` protocol does not represent embedding models. One should not grate an embedding over pasta; it is simply the wrong utensil.
 
-### Complete list as of October 27, 2026
+### Included models as of November 6, 2026
 
-The October 27 refresh retains all 25 models from the October 15 snapshot and adds:
+The November 6 refresh adds **Kimi K3.1 Pro** ![New in v1.2.0](https://img.shields.io/badge/new-v1.2.0-brightgreen.svg?style=flat-square) (`moonshotai/Kimi-K3.1-Pro`): image input, tool calling, reasoning, and a 1,048,576-token context window. Use it with `.kimiK31Pro`. Its public rates are **$2 input / $10 output per million tokens**; cached input is listed at **$0.20 per million tokens**.
 
-- **MiniMax-M3.1-Flash** ![New in v1.1.0](https://img.shields.io/badge/new-v1.1.0-brightgreen.svg?style=flat-square)
-- **DeepSeek V4.1 Flash 1017** ![New in v1.1.0](https://img.shields.io/badge/new-v1.1.0-brightgreen.svg?style=flat-square)
-- **Muse Spark Open** ![New in v1.1.0](https://img.shields.io/badge/new-v1.1.0-brightgreen.svg?style=flat-square)
-- **Nemotron 3.5 Super VL** ![New in v1.1.0](https://img.shields.io/badge/new-v1.1.0-brightgreen.svg?style=flat-square)
-- **Reflection Beam 1.0** ![New in v1.1.0](https://img.shields.io/badge/new-v1.1.0-brightgreen.svg?style=flat-square)
+The package proactively excludes all 11 models in Nebius's November 9 withdrawal notice, including seven whose JSON `deprecated` flag is still false. See [Removed models and replacements](#removed-models-and-replacements) for migration instructions. The original 31-entry response is retained unchanged in `Tools/CatalogSnapshots/models_info-2026-11-06.json` for reproducibility; the generated catalog exposes 20 entries. Context limits and other provider metadata are refreshed, with existing input/output prices unchanged.
 
-Their input and output prices are listed in the tables below. The source response is saved in `Tools/CatalogSnapshots/models_info-2026-10-27.json`.
+Version 1.1.0 added the public `UseCase.imageToText` enum case. Applications upgrading from 1.0.0 with exhaustive switches over `UseCase` must handle `.imageToText` or add a `default` branch. Image input continues to use the model's `.vision` capability.
 
-Existing model IDs, input/output prices, capabilities, and context limits are unchanged. Nemotron 3.5 Lightning now advertises the `dedicated-endpoint` use case and no longer lists descriptive tags. The new `image2text` use case on Nemotron 3.5 Super VL is exposed as `UseCase.imageToText`. Image input continues to use the model's `.vision` capability.
-
-Version 1.1.0 adds a case to the public `UseCase` enum. Applications with exhaustive switches over this enum must handle `.imageToText` or add a `default` branch when upgrading.
-
-Prices are public Token Factory list rates in **USD per 1 million tokens**, verified on **October 27, 2026** against the [public model catalog](https://tokenfactory.nebius.com/api/public/models_info). They match the package's October 27 snapshot. Cache discounts, service-tier adjustments, dedicated capacity, and negotiated rates are outside these columns; consult [Token Factory pricing](https://nebius.com/token-factory/prices) for billing details.
+Prices below are public Token Factory list rates in **USD per 1 million tokens**, verified on **November 6, 2026** against the [public model catalog](https://tokenfactory.nebius.com/api/public/models_info). They match the package's November 6 snapshot. Cache discounts, service-tier adjustments, dedicated capacity, and negotiated rates are outside these columns; consult [Token Factory pricing](https://nebius.com/token-factory/prices) for billing details.
 
 **Features:** Vision = image input; Tools = function calling; Reasoning = reasoning capability; JSON = the package's structured-output flag, inferred from the provider's `JSON mode` tag. These labels follow the committed catalog's capability flags; individual JSON Schema constraints depend on the provider. Only advertised features are listed. Categories follow the provider's modality, so some text-to-text entries also advertise Vision.
 
-#### Text to text — 19 models
+#### Text to text — 11 models
 
 | Model ID | Context (tokens) | Features | Input ($/1M) | Output ($/1M) |
 | --- | ---: | --- | ---: | ---: |
 | `MiniMaxAI/MiniMax-M3` | 1,048,576 | Vision, Tools, Reasoning | 0.30 | 1.20 |
 | `NousResearch/Hermes-4-405B` | 131,072 | Tools, Reasoning, JSON | 1.00 | 3.00 |
-| `Qwen/Qwen3-235B-A22B-Instruct-2507` | 262,144 | Tools, JSON | 0.20 | 0.60 |
 | `Qwen/Qwen3-30B-A3B-Instruct-2507` | 262,144 | Tools, JSON | 0.10 | 0.30 |
-| `Qwen/Qwen3.5-397B-A17B` | 262,144 | Tools, Reasoning | 0.60 | 3.60 |
-| `deepseek-ai/DeepSeek-V4-Flash-0731` | 1,024,000 | Tools, Reasoning, JSON | 0.14 | 0.28 |
-| `deepseek-ai/DeepSeek-V4-Pro` | 1,048,576 | Tools, Reasoning, JSON | 1.75 | 3.50 |
-| `deepseek-ai/DeepSeek-V4-Pro-0813` | 979,000 | Tools, Reasoning | 1.32 | 3.96 |
+| `deepseek-ai/DeepSeek-V4-Pro-0813` | 1,048,576 | Tools, Reasoning | 1.32 | 3.96 |
 | `google/gemma-3-27b-it` | 110,000 | Vision, Tools | 0.10 | 0.30 |
-| `moonshotai/Kimi-K2.7-Code` | 262,144 | Vision, Tools, Reasoning | 0.95 | 4.00 |
-| `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B` | 262,144 | Tools, Reasoning | 0.06 | 0.24 |
 | `nvidia/Nemotron-3-Ultra-550b-a55b` | 1,048,576 | Tools, Reasoning | 1.00 | 3.00 |
 | `nvidia/Nemotron-3_5-Lightning` | 1,048,576 | Tools, Reasoning | 0.06 | 0.24 |
-| `nvidia/nemotron-3-super-120b-a12b` | 262,144 | Tools, Reasoning | 0.30 | 0.90 |
 | `openai/gpt-oss-120b` | 131,072 | Tools, Reasoning, JSON | 0.15 | 0.60 |
 | `reflection/beam` ![New in v1.1.0](https://img.shields.io/badge/new-v1.1.0-brightgreen.svg?style=flat-square) | 1,048,576 | Tools, Reasoning | 0.25 | 1.00 |
-| `zai-org/GLM-5.1` | 202,752 | Tools, Reasoning, JSON | 1.40 | 4.40 |
 | `zai-org/GLM-5.2` | 1,048,576 | Tools, Reasoning | 1.40 | 4.40 |
-| `zai-org/GLM-5.3` | 1,024,000 | Tools, Reasoning | 1.40 | 4.40 |
+| `zai-org/GLM-5.3` | 1,048,576 | Tools, Reasoning | 1.40 | 4.40 |
 
-#### Image to text — 10 models
+#### Image to text — 8 models
 
 | Model ID | Context (tokens) | Features | Input ($/1M) | Output ($/1M) |
 | --- | ---: | --- | ---: | ---: |
 | `MiniMaxAI/MiniMax-M3.1-Flash` ![New in v1.1.0](https://img.shields.io/badge/new-v1.1.0-brightgreen.svg?style=flat-square) | 1,048,576 | Vision, Tools, Reasoning | 0.15 | 0.60 |
-| `Qwen/Qwen3.8-27B` | 262,144 | Vision, Tools, Reasoning | 0.45 | 3.00 |
-| `deepseek-ai/DeepSeek-V4.1-Flash` | 1,048,000 | Vision | 0.30 | 1.20 |
+| `Qwen/Qwen3.8-27B` | 1,000,000 | Vision, Tools, Reasoning | 0.45 | 3.00 |
 | `deepseek-ai/DeepSeek-V4.1-Flash-1017` ![New in v1.1.0](https://img.shields.io/badge/new-v1.1.0-brightgreen.svg?style=flat-square) | 1,048,576 | Vision, Tools, Reasoning | 0.30 | 1.20 |
 | `meta-models/muse-spark-open` ![New in v1.1.0](https://img.shields.io/badge/new-v1.1.0-brightgreen.svg?style=flat-square) | 1,048,576 | Vision, Tools, Reasoning | 1.25 | 4.25 |
-| `moonshotai/Kimi-K2.6` | 262,144 | Vision, Tools, Reasoning | 0.95 | 4.00 |
-| `moonshotai/Kimi-K3` | 1,024,000 | Vision, Tools, Reasoning | 3.00 | 15.00 |
+| `moonshotai/Kimi-K3` | 1,048,576 | Vision, Tools, Reasoning | 3.00 | 15.00 |
+| `moonshotai/Kimi-K3.1-Pro` ![New in v1.2.0](https://img.shields.io/badge/new-v1.2.0-brightgreen.svg?style=flat-square) | 1,048,576 | Vision, Tools, Reasoning | 2.00 | 10.00 |
 | `nvidia/Nemotron-3.5-Super-VL` ![New in v1.1.0](https://img.shields.io/badge/new-v1.1.0-brightgreen.svg?style=flat-square) | 1,048,576 | Vision, Tools, Reasoning | 0.30 | 0.90 |
-| `openbmb/MiniCPM-V-4_5` | 32,000 | Vision, JSON | 0.658 | 1.11 |
-| `zai-org/GLM-5.3-Flash` | 1,024,000 | Vision, Tools, Reasoning | 0.15 | 0.50 |
+| `zai-org/GLM-5.3-Flash` | 1,048,576 | Vision, Tools, Reasoning | 0.15 | 0.50 |
 
 #### Embeddings — 1 model
 
@@ -227,33 +213,73 @@ Prices are public Token Factory list rates in **USD per 1 million tokens**, veri
 
 The canonical list and its complete metadata live in `NebiusModelCatalog.generated.swift`. This README is the wine list; the generated file remains the cellar inventory.
 
-### Convenience constants
+### Removed models and replacements
 
-Constants are available for commonly used generative models, including all five October 27 additions:
+The following 11 models have been removed from the package's selectable catalog ahead of **Monday, November 9, 2026**, using [Nebius's official withdrawal notice](https://docs.tokenfactory.nebius.com/november-2026-deprecation-notice). Their IDs no longer appear in `all`, `generative`, or modality lists; `model(id:)` returns `nil` for them.
+
+| Removed model ID | Unavailable constant | Official replacement |
+| --- | --- | --- |
+| `deepseek-ai/DeepSeek-V4-Pro` ![Removed](https://img.shields.io/badge/removed-red.svg?style=flat-square) | `.deepSeekV4Pro` | `deepseek-ai/DeepSeek-V4-Pro-0813` (`.deepSeekV4Pro0813`) |
+| `deepseek-ai/DeepSeek-V4-Flash-0731` ![Removed](https://img.shields.io/badge/removed-red.svg?style=flat-square) | `.deepSeekV4Flash0731` | `deepseek-ai/DeepSeek-V4.1-Flash-1017` (`.deepSeekV41Flash1017`) |
+| `deepseek-ai/DeepSeek-V4.1-Flash` ![Removed](https://img.shields.io/badge/removed-red.svg?style=flat-square) | `.deepSeekV41Flash` | `deepseek-ai/DeepSeek-V4.1-Flash-1017` (`.deepSeekV41Flash1017`) |
+| `Qwen/Qwen3-235B-A22B-Instruct-2507` ![Removed](https://img.shields.io/badge/removed-red.svg?style=flat-square) | `.qwen3235BInstruct2507` | `Qwen/Qwen3-30B-A3B-Instruct-2507` (`.qwen330BInstruct2507`) |
+| `Qwen/Qwen3.5-397B-A17B` ![Removed](https://img.shields.io/badge/removed-red.svg?style=flat-square) | `.qwen35Large` | `Qwen/Qwen3.8-27B` (`.qwen3827B`) |
+| `moonshotai/Kimi-K2.6` ![Removed](https://img.shields.io/badge/removed-red.svg?style=flat-square) | `.kimiK26` | `moonshotai/Kimi-K3` (`.kimiK3`) |
+| `moonshotai/Kimi-K2.7-Code` ![Removed](https://img.shields.io/badge/removed-red.svg?style=flat-square) | `.kimiK27Code` | `moonshotai/Kimi-K3` (`.kimiK3`) |
+| `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B` ![Removed](https://img.shields.io/badge/removed-red.svg?style=flat-square) | `.nemotron3Nano30B` | `nvidia/Nemotron-3_5-Lightning` (`.nemotron35Lightning`) |
+| `nvidia/nemotron-3-super-120b-a12b` ![Removed](https://img.shields.io/badge/removed-red.svg?style=flat-square) | `.nemotron3Super120B` | `nvidia/Nemotron-3.5-Super-VL` (`.nemotron35SuperVL`) |
+| `openbmb/MiniCPM-V-4_5` ![Removed](https://img.shields.io/badge/removed-red.svg?style=flat-square) | `.miniCPMV45` | `nvidia/Nemotron-3.5-Super-VL` (`.nemotron35SuperVL`) |
+| `zai-org/GLM-5.1` ![Removed](https://img.shields.io/badge/removed-red.svg?style=flat-square) | `.glm51` | `zai-org/GLM-5.3` (`.glm53`) |
+
+Old constants carry `@available(*, unavailable, renamed: ..., message: ...)`: using one now produces a **compiler error with its replacement in Xcode**. These declarations exist only to guide migration and cannot select a model. Existing applications using them must update their code; no request is silently redirected to another model.
+
+The generator applies this removal list independently of the JSON flags, so a future catalog refresh cannot reintroduce these IDs. The source snapshot and migration metadata keep their identifiers only for reproducibility and diagnostics.
+
+Migration differences from the [public catalog](https://tokenfactory.nebius.com/api/public/models_info), checked November 6 (USD per million input / output tokens):
+
+- **DeepSeek V4 Pro 0813:** same 1,048,576-token context; **$1.32 / $3.96**, versus $1.75 / $3.50. Input is cheaper; output is more expensive.
+- **Qwen3 30B Instruct 2507:** same 262,144-token context and tool/JSON flags; **$0.10 / $0.30**, half the previous rates. Validate answer quality when moving from the 235B model to the 30B model.
+- **Nemotron 3.5 Super VL:** retains image input, adds tools and reasoning, and raises context from 32,000 to 1,048,576 tokens; **$0.30 / $0.90**, versus $0.658 / $1.11.
+- **GLM-5.3:** retains tools and reasoning, with context increasing from 202,752 to 1,048,576 tokens; unchanged **$1.40 / $4.40**.
+
+For the four migrations compared above, check the adapter's capabilities before switching `@Generable` workflows: `.qwen330BInstruct2507` includes `.structuredOutput`; the other three replacement constants do not in this snapshot. A replacement recommendation does not guarantee identical schema support or model behavior.
+
+Nebius's withdrawal applies to **Serverless**; Dedicated Endpoints remain supported. For an existing dedicated deployment, explicitly use `.custom(id:capabilities:)` with its routing ID and endpoint URL. Configuring an affected ID through a string emits a console message naming its Serverless replacement; custom endpoint configurations are not blocked.
+
+`NebiusModel(id: "...")` still emits the generic compiler warning recommending typed constants or `.custom(...)`. The `isDeprecated` property remains available for future provider flags, but all 11 withdrawals above are excluded entirely from this catalog.
+
+### Typed model selection
+
+Use a typed constant for public models. All **19 generative models** have one, with autocompletion and model-specific deprecation warnings in Xcode. `NebiusModel` is a struct with static constants, so the dot syntax works like enum cases while still allowing custom models. Examples:
 
 ```swift
 .nemotron35Lightning
 .minimaxM3
-.qwen35Large
+.qwen3827B
 .gptOSS120B
-.deepSeekV4Flash0731
+.deepSeekV4Pro0813
 .minimaxM31Flash
 .deepSeekV41Flash1017
 .museSparkOpen
 .nemotron35SuperVL
 .reflectionBeam
+.kimiK31Pro
 ```
 
-Use them directly when creating a model:
+Prefer this enum-style dot syntax when creating a model:
 
 ```swift
 let model = NebiusLanguageModel(
-  name: .nemotron35SuperVL,
+  name: .kimiK31Pro,
   auth: .apiKey(apiKey)
 )
 ```
 
-The five new aliases preserve their catalog capabilities, including image input for the four vision models. No catalog lookup or optional unwrapping is needed.
+The generated constants preserve catalog capabilities, including image input for vision models. The three remaining original constants (`.minimaxM3`, `.nemotron35Lightning`, and `.gptOSS120B`) retain their existing `.fullText` configuration. No catalog lookup or optional unwrapping is needed.
+
+The old `NebiusModel(id:fastVariantID:capabilities:)` initializer remains functional but emits a compiler warning directing callers to typed constants. For a private, fine-tuned, dedicated, or newly released model outside the snapshot, use `.custom(id:fastVariantID:capabilities:)` and supply its capabilities explicitly. This intentional custom path does not emit the generic selection warning.
+
+Dynamic selection, such as restoring a saved model ID or presenting a model picker, remains supported through `NebiusModelCatalog.model(id:)?.languageModel`. It resolves metadata from the snapshot and does not emit the generic selection warning.
 
 ### Custom chat routes
 
@@ -276,10 +302,13 @@ The same option is available on `NebiusExecutor.Configuration` and the HTTP tran
 
 ### Private, fine-tuned, and dedicated models
 
-For a model outside the public snapshot, construct a `NebiusModel` with its actual capabilities:
+> [!TIP]
+> For a model already in the public catalog, prefer the typed dot syntax, such as `.kimiK31Pro`, over a custom string ID. It provides Xcode autocompletion, compile-time checking of the constant name, predefined capabilities, and deprecation warnings. This is the enum-style API described above; technically, these are static constants on `NebiusModel`.
+
+Use `.custom(...)` for private, fine-tuned, or dedicated models with their own IDs, or for a new model not yet included in the snapshot. Supply its actual capabilities explicitly:
 
 ```swift
-let model = NebiusModel(
+let model = NebiusModel.custom(
   id: "my-organisation/my-fine-tuned-model",
   capabilities: [.toolCalling, .reasoning, .structuredOutput]
 )
@@ -287,12 +316,14 @@ let model = NebiusModel(
 
 Capabilities are explicit because sending an unsupported field can produce a hard API error. As with pairing food and wine, it is better to be honest about what the bottle can do.
 
+`.custom(...)` does not validate an ID against the public catalog or infer capabilities. The older `NebiusModel(id: "...")` initializer still works but emits a compiler warning recommending typed constants or this explicit custom API.
+
 > [!NOTE]
 > A compiled-in catalog entry is not a live availability guarantee. Before shipping a sensitive workload, check the [Token Factory catalog](https://tokenfactory.nebius.com/models) and consider a dedicated endpoint.
 
 ## Updating the catalog
 
-The package includes the `UpdateNebiusModelCatalog` maintenance executable. It reads Token Factory's public endpoint, keeps active families, sorts IDs deterministically, and rewrites the generated Swift snapshot.
+The package includes the `UpdateNebiusModelCatalog` maintenance executable. It reads Token Factory's public endpoint, keeps active families, sorts IDs deterministically, and rewrites the generated Swift snapshot and model aliases. It excludes the 11 announced withdrawals using its `removedModelReplacements` map, independently of provider flags. Unavailable declarations retain migration errors even after those IDs disappear from upstream JSON. Other provider deprecation flags still generate `isDeprecated` metadata and deprecation warnings.
 
 The update is never performed automatically at runtime. You must deliberately reach for the corkscrew:
 
@@ -302,7 +333,7 @@ swift run UpdateNebiusModelCatalog
 
 The default snapshot date is the current UTC date.
 
-The generator rejects unknown use cases or regions before changing the Swift file. When the public API adds a value, review source compatibility, add its case to `NebiusCatalogModel.UseCase` or `.Region` and its mapping in `UpdateNebiusModelCatalog`, then regenerate and run the tests.
+The generator rejects unknown use cases, regions, or generative model IDs without a typed constant before changing the Swift file. Add a stable name to its `aliases` mapping for each new generative model. When the public API adds a value, review source compatibility, add its case to `NebiusCatalogModel.UseCase` or `.Region` and its mapping in `UpdateNebiusModelCatalog`, then regenerate and run the tests.
 
 ### Reproducible update from saved JSON
 
@@ -312,7 +343,7 @@ curl https://tokenfactory.nebius.com/api/public/models_info \
 
 swift run UpdateNebiusModelCatalog \
   --input models_info.json \
-  --snapshot-date 2026-10-27
+  --snapshot-date 2026-11-06
 ```
 
 ### Validation without modification
@@ -322,7 +353,7 @@ The `--check` option compares the expected output with the file checked into the
 ```bash
 swift run UpdateNebiusModelCatalog \
   --input models_info.json \
-  --snapshot-date 2026-10-27 \
+  --snapshot-date 2026-11-06 \
   --check
 ```
 
@@ -616,7 +647,7 @@ The initializer verifies that a fixed reasoning effort is only used with a model
 For a model family exposed under separate low-latency and full-quality IDs, declare both:
 
 ```swift
-let family = NebiusModel(
+let family = NebiusModel.custom(
   id: "provider/model-full",
   fastVariantID: "provider/model-fast",
   capabilities: .fullText
@@ -853,9 +884,11 @@ The tests cover:
 - Authentication header forwarding
 - SSE parsing for text, reasoning, and usage
 - Structured API errors
-- The snapshot date, all 30 exact model IDs, and modality counts
+- The snapshot date, all 20 included model IDs and exclusion of the 11 withdrawn IDs, and modality counts
 - Model ID uniqueness
 - Important capabilities on representative catalog entries
+- Provider deprecation flags, context windows, and prices against the saved snapshot
+- Compiler errors with replacement names for the 11 removed aliases, and warnings for the legacy string initializer (`python3 Tests/CompilerDiagnostics/check_model_deprecations.py`)
 
 `TavilyAPITests` additionally covers:
 
@@ -872,12 +905,12 @@ To validate catalog reproducibility independently:
 
 ```bash
 swift run UpdateNebiusModelCatalog \
-  --input Tools/CatalogSnapshots/models_info-2026-10-27.json \
-  --snapshot-date 2026-10-27 \
+  --input Tools/CatalogSnapshots/models_info-2026-11-06.json \
+  --snapshot-date 2026-11-06 \
   --check
 ```
 
-The [GitHub Actions workflow](.github/workflows/ci.yml) runs the Nebius and Tavily protocol suites and checks catalog reproducibility on pull requests and pushes to `main`. The executor suite must additionally be run with Xcode 27 and macOS 27 before releasing adapter changes. Taste the wine before serving the table; test the code before pushing the tag.
+The [GitHub Actions workflow](.github/workflows/ci.yml) runs the Nebius and Tavily protocol suites and checks catalog reproducibility and model removal and string-selection diagnostics on pull requests and pushes to `main`. The executor suite must additionally be run with Xcode 27 and macOS 27 before releasing adapter changes. Taste the wine before serving the table; test the code before pushing the tag.
 
 ## Scope
 

@@ -31,64 +31,42 @@ public struct NebiusModel: Hashable, Sendable {
 
   public let capabilities: Capabilities
 
+  /// Prefer a typed model constant or a catalog entry for public models.
+  /// This initializer remains functional for source compatibility.
+  @available(
+    *, deprecated,
+    message: "Prefer typed model constants (for example .kimiK31Pro) or a catalog entry's .languageModel. For custom or dedicated models, use NebiusModel.custom(id:fastVariantID:capabilities:)."
+  )
   public init(
     id: String,
     fastVariantID: String? = nil,
     capabilities: Capabilities = .fullText
   ) {
-    precondition(!id.isEmpty, "A Nebius model ID cannot be empty")
-    self.id = id
+    self.init(modelID: id, fastVariantID: fastVariantID, capabilities: capabilities)
+  }
+
+  /// Explicitly configures a private, fine-tuned, dedicated, or uncatalogued model.
+  /// Supply its actual capabilities; they are not inferred from the ID.
+  public static func custom(
+    id: String,
+    fastVariantID: String? = nil,
+    capabilities: Capabilities
+  ) -> NebiusModel {
+    NebiusModel(modelID: id, fastVariantID: fastVariantID, capabilities: capabilities)
+  }
+
+  // Catalog entries and generated constants already resolve metadata internally.
+  init(
+    modelID: String,
+    fastVariantID: String? = nil,
+    capabilities: Capabilities
+  ) {
+    precondition(!modelID.isEmpty, "A Nebius model ID cannot be empty")
+    self.id = modelID
     self.fastVariantID = fastVariantID
     self.capabilities = capabilities
   }
 }
 
-// Convenient aliases for commonly used entries. See `NebiusModelCatalog` for
-// the complete, dated public catalog, or use `NebiusModel(id:capabilities:)`
-// for private checkpoints and dedicated endpoints.
-extension NebiusModel {
-  public static let nemotron35Lightning = NebiusModel(
-    id: "nvidia/Nemotron-3_5-Lightning"
-  )
-
-  public static let minimaxM3 = NebiusModel(
-    id: "MiniMaxAI/MiniMax-M3"
-  )
-
-  public static let minimaxM31Flash = NebiusModel(
-    id: "MiniMaxAI/MiniMax-M3.1-Flash",
-    capabilities: [.vision, .toolCalling, .reasoning]
-  )
-
-  public static let deepSeekV41Flash1017 = NebiusModel(
-    id: "deepseek-ai/DeepSeek-V4.1-Flash-1017",
-    capabilities: [.vision, .toolCalling, .reasoning]
-  )
-
-  public static let museSparkOpen = NebiusModel(
-    id: "meta-models/muse-spark-open",
-    capabilities: [.vision, .toolCalling, .reasoning]
-  )
-
-  public static let nemotron35SuperVL = NebiusModel(
-    id: "nvidia/Nemotron-3.5-Super-VL",
-    capabilities: [.vision, .toolCalling, .reasoning]
-  )
-
-  public static let reflectionBeam = NebiusModel(
-    id: "reflection/beam",
-    capabilities: [.toolCalling, .reasoning]
-  )
-
-  public static let qwen35Large = NebiusModel(
-    id: "Qwen/Qwen3.5-397B-A17B"
-  )
-
-  public static let gptOSS120B = NebiusModel(
-    id: "openai/gpt-oss-120b"
-  )
-
-  public static let deepSeekV4Flash0731 = NebiusModel(
-    id: "deepseek-ai/DeepSeek-V4-Flash-0731"
-  )
-}
+// Public model aliases and their deprecation annotations are generated alongside
+// NebiusModelCatalog. Use .custom(id:fastVariantID:capabilities:) for custom IDs.

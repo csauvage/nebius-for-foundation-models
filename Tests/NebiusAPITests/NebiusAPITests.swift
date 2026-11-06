@@ -100,7 +100,7 @@ struct NebiusAPITests {
     #if compiler(>=6.4)
       if #available(macOS 27.0, iOS 27.0, *) {
         let model = NebiusLanguageModel(
-          name: NebiusModel(id: "private/model", capabilities: []),
+          name: .custom(id: "private/model", capabilities: []),
           auth: .apiKey("test"), baseURL: URL(string: "https://relay.example")!,
           chatCompletionsPath: "gateway/chat")
         try expect(
@@ -204,47 +204,58 @@ struct NebiusAPITests {
     }
   }
 
+  private static let removedModelIDs: Set<String> = [
+    "Qwen/Qwen3-235B-A22B-Instruct-2507",
+    "Qwen/Qwen3.5-397B-A17B",
+    "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "deepseek-ai/DeepSeek-V4-Pro",
+    "deepseek-ai/DeepSeek-V4.1-Flash",
+    "moonshotai/Kimi-K2.6",
+    "moonshotai/Kimi-K2.7-Code",
+    "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+    "nvidia/nemotron-3-super-120b-a12b",
+    "openbmb/MiniCPM-V-4_5",
+    "zai-org/GLM-5.1",
+  ]
+
   private static func catalogSnapshot() throws {
     let expectedIDs = [
-      "deepseek-ai/DeepSeek-V4.1-Flash",
       "deepseek-ai/DeepSeek-V4.1-Flash-1017",
-      "deepseek-ai/DeepSeek-V4-Flash-0731",
-      "deepseek-ai/DeepSeek-V4-Pro",
       "deepseek-ai/DeepSeek-V4-Pro-0813",
       "google/gemma-3-27b-it",
       "meta-models/muse-spark-open",
       "MiniMaxAI/MiniMax-M3",
       "MiniMaxAI/MiniMax-M3.1-Flash",
-      "moonshotai/Kimi-K2.6",
-      "moonshotai/Kimi-K2.7-Code",
       "moonshotai/Kimi-K3",
+      "moonshotai/Kimi-K3.1-Pro",
       "NousResearch/Hermes-4-405B",
       "nvidia/Nemotron-3_5-Lightning",
       "nvidia/Nemotron-3.5-Super-VL",
-      "nvidia/nemotron-3-super-120b-a12b",
       "nvidia/Nemotron-3-Ultra-550b-a55b",
-      "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
       "openai/gpt-oss-120b",
-      "openbmb/MiniCPM-V-4_5",
       "Qwen/Qwen3-30B-A3B-Instruct-2507",
-      "Qwen/Qwen3-235B-A22B-Instruct-2507",
       "Qwen/Qwen3-Embedding-8B",
-      "Qwen/Qwen3.5-397B-A17B",
       "Qwen/Qwen3.8-27B",
       "reflection/beam",
-      "zai-org/GLM-5.1",
       "zai-org/GLM-5.2",
       "zai-org/GLM-5.3",
       "zai-org/GLM-5.3-Flash",
     ].sorted()
 
-    try expect(NebiusModelCatalog.snapshotDate == "2026-10-27", "Wrong snapshot date")
+    try expect(NebiusModelCatalog.snapshotDate == "2026-11-06", "Wrong snapshot date")
     try expect(NebiusModelCatalog.all.map(\.id) == expectedIDs, "Catalog IDs changed")
-    try expect(Set(NebiusModelCatalog.all.map(\.id)).count == 30, "Catalog IDs are not unique")
-    try expect(NebiusModelCatalog.textGeneration.count == 19, "Wrong text model count")
-    try expect(NebiusModelCatalog.visionLanguage.count == 10, "Wrong vision model count")
+    try expect(Set(NebiusModelCatalog.all.map(\.id)).count == 20, "Catalog IDs are not unique")
+    try expect(NebiusModelCatalog.textGeneration.count == 11, "Wrong text model count")
+    try expect(NebiusModelCatalog.visionLanguage.count == 8, "Wrong vision model count")
     try expect(NebiusModelCatalog.embeddings.count == 1, "Wrong embedding model count")
-    try expect(NebiusModelCatalog.generative.count == 29, "Wrong generative model count")
+    try expect(NebiusModelCatalog.generative.count == 19, "Wrong generative model count")
+
+    for id in removedModelIDs {
+      try expect(NebiusModelCatalog.model(id: id) == nil, "Removed model remains selectable: \(id)")
+    }
+    try expect(
+      !NebiusModelCatalog.all.contains(where: \.isDeprecated),
+      "The remaining snapshot must not contain deprecated models")
 
     let embedding = NebiusModelCatalog.model(id: "Qwen/Qwen3-Embedding-8B")
     try expect(embedding?.languageModel == nil, "Embedding model became generative")
@@ -262,15 +273,36 @@ struct NebiusAPITests {
 
     let newAliases: [NebiusModel] = [
       .minimaxM31Flash, .deepSeekV41Flash1017, .museSparkOpen,
-      .nemotron35SuperVL, .reflectionBeam,
+      .nemotron35SuperVL, .reflectionBeam, .kimiK31Pro,
+      .hermes4405B, .qwen330BInstruct2507, .qwen3827B,
+      .deepSeekV4Pro0813, .gemma327B,
+      .kimiK3,
+      .nemotron3Ultra550B, .glm52, .glm53, .glm53Flash,
     ]
-    try expect(Set(newAliases.map(\.id)).count == 5, "New aliases must identify distinct models")
+    try expect(Set(newAliases.map(\.id)).count == 16, "New aliases must identify distinct models")
     for alias in newAliases {
       let catalogModel = NebiusModelCatalog.model(id: alias.id)?.languageModel
       try expect(
         catalogModel == alias,
         "Alias must preserve catalog identity and capabilities for \(alias.id)")
     }
+    let originalAliases: [NebiusModel] = [
+      .minimaxM3, .nemotron35Lightning, .gptOSS120B,
+    ]
+    try expect(
+      originalAliases.allSatisfy { $0.capabilities == .fullText },
+      "Generating aliases must preserve their original capabilities")
+    try expect(
+      Set((newAliases + originalAliases).map(\.id))
+        == Set(NebiusModelCatalog.generative.filter { !$0.isDeprecated }.map(\.id)),
+      "Every non-deprecated generative model must have a typed constant")
+
+    let custom = NebiusModel.custom(
+      id: "private/model", fastVariantID: "private/fast", capabilities: [.vision])
+    try expect(
+      custom.id == "private/model" && custom.fastVariantID == "private/fast"
+        && custom.capabilities == [.vision],
+      "Explicit custom models must preserve the supplied configuration")
   }
 
   private static func catalogMetadata() throws {
@@ -283,6 +315,7 @@ struct NebiusAPITests {
       throw TestFailure(description: "Invalid catalog fixture")
     }
     var checkedIDs = Set<String>()
+    var excludedIDs = Set<String>()
     for family in families where family["status"] as? String == "active" {
       guard let rawUseCases = family["use_cases"] as? [String],
         let flavors = family["flavors"] as? [[String: Any]]
@@ -291,8 +324,15 @@ struct NebiusAPITests {
         [NebiusCatalogModel.UseCase].self,
         from: JSONSerialization.data(withJSONObject: rawUseCases))
       for flavor in flavors {
-        guard let id = flavor["model_id"] as? String,
-          let regionObjects = flavor["regions"] as? [[String: String]],
+        guard let id = flavor["model_id"] as? String else {
+          throw TestFailure(description: "Missing model ID in catalog fixture")
+        }
+        if removedModelIDs.contains(id) {
+          try expect(NebiusModelCatalog.model(id: id) == nil, "Withdrawn ID was regenerated: \(id)")
+          excludedIDs.insert(id)
+          continue
+        }
+        guard let regionObjects = flavor["regions"] as? [[String: String]],
           let model = NebiusModelCatalog.model(id: id)
         else { throw TestFailure(description: "Missing model or regions in catalog fixture") }
         let rawRegions = try regionObjects.map { region in
@@ -306,6 +346,16 @@ struct NebiusAPITests {
           from: JSONSerialization.data(withJSONObject: rawRegions))
         try expect(model.useCases == useCases, "Use-case mapping changed for \(id)")
         try expect(model.regions == regions, "Region mapping changed for \(id)")
+        try expect(
+          model.isDeprecated == (flavor["deprecated"] as? Bool ?? false),
+          "Deprecation flag differs from the provider snapshot for \(id)")
+        try expect(
+          model.contextWindow == flavor["max_model_len"] as? Int,
+          "Context window differs from the provider snapshot for \(id)")
+        try expect(
+          model.inputPricePerMillionTokens == flavor["input_price_per_million_tokens"] as? Double
+            && model.outputPricePerMillionTokens == flavor["output_price_per_million_tokens"] as? Double,
+          "Prices differ from the provider snapshot for \(id)")
         let encodedUseCases = try JSONDecoder().decode(
           [String].self, from: JSONEncoder().encode(model.useCases))
         let encodedRegions = try JSONDecoder().decode(
@@ -321,6 +371,7 @@ struct NebiusAPITests {
         checkedIDs.insert(id)
       }
     }
+    try expect(excludedIDs == removedModelIDs, "All 11 withdrawals must be excluded from the source snapshot")
     try expect(
       checkedIDs == Set(NebiusModelCatalog.all.map(\.id)),
       "Every catalog model must be checked against the source snapshot")

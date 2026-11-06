@@ -58,7 +58,10 @@ public struct NebiusCatalogModel: Hashable, Sendable, Identifiable {
   public let useCases: [UseCase]
   public let regions: [Region]
   public let capabilities: NebiusModel.Capabilities
+  /// Whether Token Factory marks this flavor as deprecated in the saved catalog.
+  public let isDeprecated: Bool
 
+  /// Creates metadata for a model that is not marked deprecated.
   public init(
     id: String,
     name: String,
@@ -75,6 +78,32 @@ public struct NebiusCatalogModel: Hashable, Sendable, Identifiable {
     regions: [Region],
     capabilities: NebiusModel.Capabilities
   ) {
+    self.init(
+      id: id, name: name, vendor: vendor, modality: modality, description: description,
+      contextWindow: contextWindow, inputPricePerMillionTokens: inputPricePerMillionTokens,
+      outputPricePerMillionTokens: outputPricePerMillionTokens, tokensPerSecond: tokensPerSecond,
+      quantization: quantization, tags: tags, useCases: useCases, regions: regions,
+      capabilities: capabilities, isDeprecated: false
+    )
+  }
+
+  public init(
+    id: String,
+    name: String,
+    vendor: String,
+    modality: Modality,
+    description: String,
+    contextWindow: Int,
+    inputPricePerMillionTokens: Double,
+    outputPricePerMillionTokens: Double,
+    tokensPerSecond: Double?,
+    quantization: String?,
+    tags: [String],
+    useCases: [UseCase],
+    regions: [Region],
+    capabilities: NebiusModel.Capabilities,
+    isDeprecated: Bool
+  ) {
     self.id = id
     self.name = name
     self.vendor = vendor
@@ -89,13 +118,20 @@ public struct NebiusCatalogModel: Hashable, Sendable, Identifiable {
     self.useCases = useCases
     self.regions = regions
     self.capabilities = capabilities
+    self.isDeprecated = isDeprecated
+  }
+
+  var deprecationMessage: String? {
+    guard isDeprecated else { return nil }
+    return "\(id) is deprecated in the public Token Factory catalog. "
+      + "Choose a non-deprecated model from NebiusModelCatalog."
   }
 
   /// A Foundation Models configuration when this entry supports generation.
   /// Embedding-only entries intentionally return `nil`.
   public var languageModel: NebiusModel? {
     guard modality != .embedding else { return nil }
-    return NebiusModel(id: id, capabilities: capabilities)
+    return NebiusModel(modelID: id, capabilities: capabilities)
   }
 
   public var supportsFineTuning: Bool {

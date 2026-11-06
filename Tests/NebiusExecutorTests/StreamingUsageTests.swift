@@ -22,7 +22,7 @@
                 minimumElements: 1, maximumElements: 3))
           ]), dependencies: [])
       let model = NebiusLanguageModel(
-        name: .init(id: "fixture", capabilities: [.structuredOutput]),
+        name: .custom(id: "fixture", capabilities: [.structuredOutput]),
         auth: .proxied(headers: [:]))
       let executor = try NebiusExecutor(configuration: model.executorConfiguration)
       let encoded = try executor.schemaJSON(schema)

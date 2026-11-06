@@ -5,9 +5,9 @@
 
 import Foundation
 
-/// The public Token Factory catalog frozen for a package release.
+/// The public Token Factory catalog with announced Serverless withdrawals excluded.
 public enum NebiusModelCatalog {
-  public static let snapshotDate = "2026-10-27"
+  public static let snapshotDate = "2026-11-06"
   public static let sourceURL = URL(
     string: "https://tokenfactory.nebius.com/api/public/models_info"
   )!
@@ -27,7 +27,8 @@ public enum NebiusModelCatalog {
       tags: [],
       useCases: [.dedicatedEndpoint, .text, .reasoning, .functionCalling, .code, .contextAndRAG, .image, .video, .responsesAPI],
       regions: [.usCentral1],
-      capabilities: [.vision, .toolCalling, .reasoning]
+      capabilities: [.vision, .toolCalling, .reasoning],
+      isDeprecated: false
     ),
     NebiusCatalogModel(
       id: "MiniMaxAI/MiniMax-M3.1-Flash",
@@ -38,12 +39,13 @@ public enum NebiusModelCatalog {
       contextWindow: 1_048_576,
       inputPricePerMillionTokens: 0.15,
       outputPricePerMillionTokens: 0.6,
-      tokensPerSecond: 181.46,
+      tokensPerSecond: 25,
       quantization: "fp4",
       tags: [],
       useCases: [.dedicatedEndpoint, .text, .image, .code, .functionCalling, .responsesAPI, .reasoning],
       regions: [.usNorth1],
-      capabilities: [.vision, .toolCalling, .reasoning]
+      capabilities: [.vision, .toolCalling, .reasoning],
+      isDeprecated: false
     ),
     NebiusCatalogModel(
       id: "NousResearch/Hermes-4-405B",
@@ -59,23 +61,8 @@ public enum NebiusModelCatalog {
       tags: ["128K context", "JSON mode"],
       useCases: [.text, .code, .complexWriting, .contextAndRAG, .functionCalling, .reasoning, .summarization, .responsesAPI],
       regions: [.euNorth1],
-      capabilities: [.toolCalling, .reasoning, .structuredOutput]
-    ),
-    NebiusCatalogModel(
-      id: "Qwen/Qwen3-235B-A22B-Instruct-2507",
-      name: "Qwen3-235B-A22B-Instruct-2507",
-      vendor: "Qwen",
-      modality: .textToText,
-      description: "Balanced Qwen3 flagship tuned for strong general reasoning, chat quality, and tool use.",
-      contextWindow: 262_144,
-      inputPricePerMillionTokens: 0.2,
-      outputPricePerMillionTokens: 0.6,
-      tokensPerSecond: 27,
-      quantization: "fp8",
-      tags: ["262K context", "code", "math", "JSON mode"],
-      useCases: [.text, .code, .functionCalling, .contextAndRAG, .fineTune, .responsesAPI],
-      regions: [.euNorth1],
-      capabilities: [.toolCalling, .structuredOutput]
+      capabilities: [.toolCalling, .reasoning, .structuredOutput],
+      isDeprecated: false
     ),
     NebiusCatalogModel(
       id: "Qwen/Qwen3-30B-A3B-Instruct-2507",
@@ -91,7 +78,8 @@ public enum NebiusModelCatalog {
       tags: ["262K context", "code", "math", "JSON mode"],
       useCases: [.text, .code, .functionCalling, .contextAndRAG, .fineTune, .responsesAPI],
       regions: [.euNorth1],
-      capabilities: [.toolCalling, .structuredOutput]
+      capabilities: [.toolCalling, .structuredOutput],
+      isDeprecated: false
     ),
     NebiusCatalogModel(
       id: "Qwen/Qwen3-Embedding-8B",
@@ -103,35 +91,20 @@ public enum NebiusModelCatalog {
       inputPricePerMillionTokens: 0.01,
       outputPricePerMillionTokens: 0,
       tokensPerSecond: 0,
-      quantization: nil,
+      quantization: "bf16",
       tags: ["32K context"],
       useCases: [.pairClassification, .reranking, .multilabelClassification, .multilingual, .classification, .clustering, .retrieval],
       regions: [.euNorth1],
-      capabilities: []
-    ),
-    NebiusCatalogModel(
-      id: "Qwen/Qwen3.5-397B-A17B",
-      name: "Qwen3.5-397B-A17B",
-      vendor: "Qwen",
-      modality: .textToText,
-      description: "Multimodal model featuring a Hybrid Mixture-of-Experts architecture, designed for state-of-the-art performance across chat, retrieval-augmented generation, vision-language understanding, video understanding, and agentic workflows",
-      contextWindow: 262_144,
-      inputPricePerMillionTokens: 0.6,
-      outputPricePerMillionTokens: 3.6,
-      tokensPerSecond: 80,
-      quantization: "fp4",
-      tags: [],
-      useCases: [.dedicatedEndpoint, .text, .code, .reasoning, .functionCalling, .contextAndRAG, .responsesAPI],
-      regions: [.usCentral1],
-      capabilities: [.toolCalling, .reasoning]
+      capabilities: [],
+      isDeprecated: false
     ),
     NebiusCatalogModel(
       id: "Qwen/Qwen3.8-27B",
       name: "Qwen3.8-27B",
       vendor: "Qwen",
       modality: .imageToText,
-      description: "Qwen3.8-27B is Qwen's dense 27B-parameter reasoning model for coding, professional work, research, and long-horizon agentic tasks. This NVFP4 serverless deployment supports tool calling and a native 262K context window.",
-      contextWindow: 262_144,
+      description: "Qwen3.8-27B is Qwen's dense 27B-parameter reasoning model for coding, professional work, research, and long-horizon agentic tasks. This NVFP4 serverless deployment supports tool calling and a 1M-token context window.",
+      contextWindow: 1_000_000,
       inputPricePerMillionTokens: 0.45,
       outputPricePerMillionTokens: 3,
       tokensPerSecond: 218,
@@ -139,39 +112,8 @@ public enum NebiusModelCatalog {
       tags: [],
       useCases: [.dedicatedEndpoint, .text, .image, .reasoning, .code, .functionCalling, .contextAndRAG, .responsesAPI],
       regions: [.usCentral1],
-      capabilities: [.vision, .toolCalling, .reasoning]
-    ),
-    NebiusCatalogModel(
-      id: "deepseek-ai/DeepSeek-V4-Flash-0731",
-      name: "DeepSeek-V4-Flash-0731",
-      vendor: "deepseek",
-      modality: .textToText,
-      description: "DeepSeek V4 Flash 0731 is a 1M-context reasoning model designed for coding and agentic workloads.",
-      contextWindow: 1_024_000,
-      inputPricePerMillionTokens: 0.14,
-      outputPricePerMillionTokens: 0.28,
-      tokensPerSecond: 351,
-      quantization: "fp8",
-      tags: ["1M context", "reasoning", "JSON mode", "code", "math"],
-      useCases: [.text, .reasoning, .functionCalling, .code, .contextAndRAG, .responsesAPI, .fineTune],
-      regions: [.usCentral1],
-      capabilities: [.toolCalling, .reasoning, .structuredOutput]
-    ),
-    NebiusCatalogModel(
-      id: "deepseek-ai/DeepSeek-V4-Pro",
-      name: "DeepSeek-V4-Pro",
-      vendor: "deepseek",
-      modality: .textToText,
-      description: "DeepSeek-V4 is designed for advanced reasoning, coding, and long-horizon agent workflows, with strong performance across knowledge, math, and software engineering benchmarks.",
-      contextWindow: 1_048_576,
-      inputPricePerMillionTokens: 1.75,
-      outputPricePerMillionTokens: 3.5,
-      tokensPerSecond: 24,
-      quantization: "fp8",
-      tags: ["1M context", "reasoning", "code", "math", "JSON mode"],
-      useCases: [.text, .code, .reasoning, .functionCalling, .contextAndRAG, .responsesAPI],
-      regions: [.ukSouth1],
-      capabilities: [.toolCalling, .reasoning, .structuredOutput]
+      capabilities: [.vision, .toolCalling, .reasoning],
+      isDeprecated: false
     ),
     NebiusCatalogModel(
       id: "deepseek-ai/DeepSeek-V4-Pro-0813",
@@ -179,7 +121,7 @@ public enum NebiusModelCatalog {
       vendor: "deepseek",
       modality: .textToText,
       description: "DeepSeek V4 Pro 0813 is DeepSeek's official V4 Pro release for advanced reasoning, coding, tool use, and long-horizon agentic workflows.",
-      contextWindow: 979_000,
+      contextWindow: 1_048_576,
       inputPricePerMillionTokens: 1.32,
       outputPricePerMillionTokens: 3.96,
       tokensPerSecond: 37,
@@ -187,23 +129,8 @@ public enum NebiusModelCatalog {
       tags: [],
       useCases: [.dedicatedEndpoint, .text, .code, .reasoning, .functionCalling, .contextAndRAG, .responsesAPI],
       regions: [.ukSouth1],
-      capabilities: [.toolCalling, .reasoning]
-    ),
-    NebiusCatalogModel(
-      id: "deepseek-ai/DeepSeek-V4.1-Flash",
-      name: "DeepSeek V4.1 Flash",
-      vendor: "deepseek",
-      modality: .imageToText,
-      description: "DeepSeek’s multimodal mixture-of-experts model for coding, reasoning, and tasks combining images and text.",
-      contextWindow: 1_048_000,
-      inputPricePerMillionTokens: 0.3,
-      outputPricePerMillionTokens: 1.2,
-      tokensPerSecond: 139,
-      quantization: "fp8",
-      tags: [],
-      useCases: [.dedicatedEndpoint, .text, .image, .code, .responsesAPI],
-      regions: [.usNorth1],
-      capabilities: [.vision]
+      capabilities: [.toolCalling, .reasoning],
+      isDeprecated: false
     ),
     NebiusCatalogModel(
       id: "deepseek-ai/DeepSeek-V4.1-Flash-1017",
@@ -219,7 +146,8 @@ public enum NebiusModelCatalog {
       tags: [],
       useCases: [.dedicatedEndpoint, .text, .image, .code, .functionCalling, .reasoning, .responsesAPI],
       regions: [.usNorth1],
-      capabilities: [.vision, .toolCalling, .reasoning]
+      capabilities: [.vision, .toolCalling, .reasoning],
+      isDeprecated: false
     ),
     NebiusCatalogModel(
       id: "google/gemma-3-27b-it",
@@ -235,7 +163,8 @@ public enum NebiusModelCatalog {
       tags: ["131K context"],
       useCases: [.text, .image, .functionCalling],
       regions: [.euNorth1],
-      capabilities: [.vision, .toolCalling]
+      capabilities: [.vision, .toolCalling],
+      isDeprecated: false
     ),
     NebiusCatalogModel(
       id: "meta-models/muse-spark-open",
@@ -251,39 +180,8 @@ public enum NebiusModelCatalog {
       tags: [],
       useCases: [.dedicatedEndpoint, .text, .image, .video, .code, .reasoning, .functionCalling, .responsesAPI],
       regions: [.usNorth1],
-      capabilities: [.vision, .toolCalling, .reasoning]
-    ),
-    NebiusCatalogModel(
-      id: "moonshotai/Kimi-K2.6",
-      name: "Kimi-K2.6",
-      vendor: "moonshotai",
-      modality: .imageToText,
-      description: "Kimi K2.6 is an open-source, native multimodal agentic model built through continual pretraining on approximately 15 trillion mixed visual and text tokens atop Kimi-K2-Base",
-      contextWindow: 262_144,
-      inputPricePerMillionTokens: 0.95,
-      outputPricePerMillionTokens: 4,
-      tokensPerSecond: 60,
-      quantization: "int4",
-      tags: [],
-      useCases: [.dedicatedEndpoint, .text, .image, .code, .complexWriting, .contextAndRAG, .functionCalling, .reasoning, .summarization, .responsesAPI],
-      regions: [.usCentral1],
-      capabilities: [.vision, .toolCalling, .reasoning]
-    ),
-    NebiusCatalogModel(
-      id: "moonshotai/Kimi-K2.7-Code",
-      name: "Kimi-K2.7-Code",
-      vendor: "moonshotai",
-      modality: .textToText,
-      description: "Open-source code-focused reasoning model built for long-context software engineering, tool use, and agentic coding workflows.",
-      contextWindow: 262_144,
-      inputPricePerMillionTokens: 0.95,
-      outputPricePerMillionTokens: 4,
-      tokensPerSecond: 231.26,
-      quantization: "fp4",
-      tags: [],
-      useCases: [.dedicatedEndpoint, .text, .image, .code, .complexWriting, .contextAndRAG, .functionCalling, .reasoning, .summarization, .responsesAPI],
-      regions: [.usCentral1],
-      capabilities: [.vision, .toolCalling, .reasoning]
+      capabilities: [.vision, .toolCalling, .reasoning],
+      isDeprecated: false
     ),
     NebiusCatalogModel(
       id: "moonshotai/Kimi-K3",
@@ -291,7 +189,7 @@ public enum NebiusModelCatalog {
       vendor: "moonshotai",
       modality: .imageToText,
       description: "Moonshot AI's Kimi K3 frontier open-weights MoE model (NVFP4, 1M context) with DSpark speculative decoding, strong agentic tool use, reasoning, and coding.",
-      contextWindow: 1_024_000,
+      contextWindow: 1_048_576,
       inputPricePerMillionTokens: 3,
       outputPricePerMillionTokens: 15,
       tokensPerSecond: 264.55,
@@ -299,23 +197,25 @@ public enum NebiusModelCatalog {
       tags: [],
       useCases: [.dedicatedEndpoint, .text, .image, .code, .functionCalling, .reasoning, .contextAndRAG, .responsesAPI],
       regions: [.euWest2],
-      capabilities: [.vision, .toolCalling, .reasoning]
+      capabilities: [.vision, .toolCalling, .reasoning],
+      isDeprecated: false
     ),
     NebiusCatalogModel(
-      id: "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
-      name: "Nemotron-3-Nano-30B-A3B",
-      vendor: "nvidia",
-      modality: .textToText,
-      description: "Compact MoE model optimized for efficient reasoning, chat, and coding with strong multilingual support and long-context RAG/agent workflows.",
-      contextWindow: 262_144,
-      inputPricePerMillionTokens: 0.06,
-      outputPricePerMillionTokens: 0.24,
-      tokensPerSecond: 60,
-      quantization: "fp8",
-      tags: ["262K context"],
-      useCases: [.text, .reasoning, .functionCalling, .code, .contextAndRAG, .responsesAPI],
-      regions: [.euNorth1],
-      capabilities: [.toolCalling, .reasoning]
+      id: "moonshotai/Kimi-K3.1-Pro",
+      name: "Kimi-K3.1-Pro",
+      vendor: "moonshotai",
+      modality: .imageToText,
+      description: "Moonshot AI’s open-weight multimodal mixture-of-experts model for reasoning, coding and agentic tool use. It accepts text and images and generates text, with a 1M-token context window, 2.8T total parameters and 104B active parameters.",
+      contextWindow: 1_048_576,
+      inputPricePerMillionTokens: 2,
+      outputPricePerMillionTokens: 10,
+      tokensPerSecond: 195,
+      quantization: "fp4",
+      tags: [],
+      useCases: [.dedicatedEndpoint, .text, .image, .code, .functionCalling, .reasoning, .responsesAPI],
+      regions: [.usNorth1],
+      capabilities: [.vision, .toolCalling, .reasoning],
+      isDeprecated: false
     ),
     NebiusCatalogModel(
       id: "nvidia/Nemotron-3-Ultra-550b-a55b",
@@ -331,7 +231,8 @@ public enum NebiusModelCatalog {
       tags: [],
       useCases: [.dedicatedEndpoint, .text, .summarization, .contextAndRAG, .code, .reasoning, .functionCalling, .complexWriting, .responsesAPI],
       regions: [.usCentral1],
-      capabilities: [.toolCalling, .reasoning]
+      capabilities: [.toolCalling, .reasoning],
+      isDeprecated: false
     ),
     NebiusCatalogModel(
       id: "nvidia/Nemotron-3.5-Super-VL",
@@ -347,7 +248,8 @@ public enum NebiusModelCatalog {
       tags: [],
       useCases: [.dedicatedEndpoint, .text, .image, .video, .code, .functionCalling, .reasoning, .responsesAPI, .contextAndRAG, .imageToText],
       regions: [.usNorth1],
-      capabilities: [.vision, .toolCalling, .reasoning]
+      capabilities: [.vision, .toolCalling, .reasoning],
+      isDeprecated: false
     ),
     NebiusCatalogModel(
       id: "nvidia/Nemotron-3_5-Lightning",
@@ -363,23 +265,8 @@ public enum NebiusModelCatalog {
       tags: [],
       useCases: [.dedicatedEndpoint, .text, .reasoning, .functionCalling, .code, .contextAndRAG, .responsesAPI],
       regions: [.euNorth1],
-      capabilities: [.toolCalling, .reasoning]
-    ),
-    NebiusCatalogModel(
-      id: "nvidia/nemotron-3-super-120b-a12b",
-      name: "Nemotron-3-Super-120b-a12b",
-      vendor: "nvidia",
-      modality: .textToText,
-      description: "Nemotron 3 Super is a 120B hybrid MoE model optimized for efficient multi-agent AI and complex reasoning tasks.",
-      contextWindow: 262_144,
-      inputPricePerMillionTokens: 0.3,
-      outputPricePerMillionTokens: 0.9,
-      tokensPerSecond: 127,
-      quantization: "fp4",
-      tags: [],
-      useCases: [.dedicatedEndpoint, .text, .summarization, .contextAndRAG, .code, .reasoning, .functionCalling, .complexWriting, .responsesAPI],
-      regions: [.usCentral1],
-      capabilities: [.toolCalling, .reasoning]
+      capabilities: [.toolCalling, .reasoning],
+      isDeprecated: false
     ),
     NebiusCatalogModel(
       id: "openai/gpt-oss-120b",
@@ -395,23 +282,8 @@ public enum NebiusModelCatalog {
       tags: ["131K context", "code", "JSON mode", "math", "reasoning"],
       useCases: [.text, .code, .fineTune, .functionCalling, .reasoning],
       regions: [.euNorth1],
-      capabilities: [.toolCalling, .reasoning, .structuredOutput]
-    ),
-    NebiusCatalogModel(
-      id: "openbmb/MiniCPM-V-4_5",
-      name: "openbmb/MiniCPM-V-4_5",
-      vendor: "openbmb",
-      modality: .imageToText,
-      description: "MiniCPM-V-4.5 – Compact multimodal model for image, multi-image, high-FPS/long-video, OCR/PDF understanding, with switchable fast/deep thinking.",
-      contextWindow: 32_000,
-      inputPricePerMillionTokens: 0.658,
-      outputPricePerMillionTokens: 1.11,
-      tokensPerSecond: 49.5,
-      quantization: "fp16",
-      tags: ["JSON mode"],
-      useCases: [.text, .image, .summarization, .contextAndRAG],
-      regions: [.euNorth1],
-      capabilities: [.vision, .structuredOutput]
+      capabilities: [.toolCalling, .reasoning, .structuredOutput],
+      isDeprecated: false
     ),
     NebiusCatalogModel(
       id: "reflection/beam",
@@ -427,23 +299,8 @@ public enum NebiusModelCatalog {
       tags: [],
       useCases: [.dedicatedEndpoint, .text, .code, .functionCalling, .reasoning, .responsesAPI],
       regions: [.usNorth1],
-      capabilities: [.toolCalling, .reasoning]
-    ),
-    NebiusCatalogModel(
-      id: "zai-org/GLM-5.1",
-      name: "GLM-5.1",
-      vendor: "zai-org",
-      modality: .textToText,
-      description: "Zhipu AI's latest flagship multimodal model with strong bilingual (Chinese-English) reasoning, long-context understanding, advanced tool use, and agent-oriented capabilities.",
-      contextWindow: 202_752,
-      inputPricePerMillionTokens: 1.4,
-      outputPricePerMillionTokens: 4.4,
-      tokensPerSecond: 25,
-      quantization: "fp8",
-      tags: ["long context", "reasoning", "code", "JSON mode", "math"],
-      useCases: [.text, .reasoning, .functionCalling, .contextAndRAG, .code, .responsesAPI],
-      regions: [.euNorth1],
-      capabilities: [.toolCalling, .reasoning, .structuredOutput]
+      capabilities: [.toolCalling, .reasoning],
+      isDeprecated: false
     ),
     NebiusCatalogModel(
       id: "zai-org/GLM-5.2",
@@ -459,7 +316,8 @@ public enum NebiusModelCatalog {
       tags: [],
       useCases: [.dedicatedEndpoint, .text, .code, .functionCalling, .reasoning, .contextAndRAG],
       regions: [.ukSouth1],
-      capabilities: [.toolCalling, .reasoning]
+      capabilities: [.toolCalling, .reasoning],
+      isDeprecated: false
     ),
     NebiusCatalogModel(
       id: "zai-org/GLM-5.3",
@@ -467,7 +325,7 @@ public enum NebiusModelCatalog {
       vendor: "zai-org",
       modality: .textToText,
       description: "Z.ai's GLM-5.3 in NVFP4 with DFlash2 speculative decoding: a 750B-parameter mixture-of-experts model for coding, agentic workflows, reasoning, tool use, and long-context tasks over a 1M-token window.",
-      contextWindow: 1_024_000,
+      contextWindow: 1_048_576,
       inputPricePerMillionTokens: 1.4,
       outputPricePerMillionTokens: 4.4,
       tokensPerSecond: 455,
@@ -475,7 +333,8 @@ public enum NebiusModelCatalog {
       tags: [],
       useCases: [.dedicatedEndpoint, .text, .code, .functionCalling, .reasoning, .contextAndRAG, .responsesAPI],
       regions: [.usNorth1],
-      capabilities: [.toolCalling, .reasoning]
+      capabilities: [.toolCalling, .reasoning],
+      isDeprecated: false
     ),
     NebiusCatalogModel(
       id: "zai-org/GLM-5.3-Flash",
@@ -483,7 +342,7 @@ public enum NebiusModelCatalog {
       vendor: "zai-org",
       modality: .imageToText,
       description: "Z.ai's 320B-parameter, 18B-active mixture-of-experts model for coding, agentic workflows, reasoning, tool use, and long-context tasks.",
-      contextWindow: 1_024_000,
+      contextWindow: 1_048_576,
       inputPricePerMillionTokens: 0.15,
       outputPricePerMillionTokens: 0.5,
       tokensPerSecond: 349,
@@ -491,7 +350,8 @@ public enum NebiusModelCatalog {
       tags: [],
       useCases: [.dedicatedEndpoint, .text, .image, .code, .functionCalling, .reasoning, .contextAndRAG, .responsesAPI],
       regions: [.usNorth1],
-      capabilities: [.vision, .toolCalling, .reasoning]
+      capabilities: [.vision, .toolCalling, .reasoning],
+      isDeprecated: false
     )
   ]
 
@@ -502,5 +362,211 @@ public enum NebiusModelCatalog {
 
   public static func model(id: String) -> NebiusCatalogModel? {
     all.first { $0.id == id }
+  }
+
+  // Migration metadata only; these IDs are never selectable catalog entries.
+  static let removedModelReplacements: [String: String] = [
+    "Qwen/Qwen3-235B-A22B-Instruct-2507": "Qwen/Qwen3-30B-A3B-Instruct-2507",
+    "Qwen/Qwen3.5-397B-A17B": "Qwen/Qwen3.8-27B",
+    "deepseek-ai/DeepSeek-V4-Flash-0731": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "deepseek-ai/DeepSeek-V4-Pro": "deepseek-ai/DeepSeek-V4-Pro-0813",
+    "deepseek-ai/DeepSeek-V4.1-Flash": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "moonshotai/Kimi-K2.6": "moonshotai/Kimi-K3",
+    "moonshotai/Kimi-K2.7-Code": "moonshotai/Kimi-K3",
+    "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B": "nvidia/Nemotron-3_5-Lightning",
+    "nvidia/nemotron-3-super-120b-a12b": "nvidia/Nemotron-3.5-Super-VL",
+    "openbmb/MiniCPM-V-4_5": "nvidia/Nemotron-3.5-Super-VL",
+    "zai-org/GLM-5.1": "zai-org/GLM-5.3",
+  ]
+
+  static func removalMessage(for id: String) -> String? {
+    guard let replacement = removedModelReplacements[id] else { return nil }
+    return "\(id) was removed from the package catalog ahead of the 2026-11-09 Serverless shutdown. "
+      + "Use \(replacement) for Serverless. Dedicated Endpoints are unaffected."
+  }
+}
+
+// Typed constants for every generative model. Availability annotations
+// reflect the provider's deprecation flags in this snapshot.
+extension NebiusModel {
+  /// MiniMaxAI/MiniMax-M3
+  public static let minimaxM3 = NebiusModel(
+    modelID: "MiniMaxAI/MiniMax-M3",
+    capabilities: .fullText
+  )
+
+  /// MiniMaxAI/MiniMax-M3.1-Flash
+  public static let minimaxM31Flash = NebiusModel(
+    modelID: "MiniMaxAI/MiniMax-M3.1-Flash",
+    capabilities: [.vision, .toolCalling, .reasoning]
+  )
+
+  /// NousResearch/Hermes-4-405B
+  public static let hermes4405B = NebiusModel(
+    modelID: "NousResearch/Hermes-4-405B",
+    capabilities: [.toolCalling, .reasoning, .structuredOutput]
+  )
+
+  /// Qwen/Qwen3-30B-A3B-Instruct-2507
+  public static let qwen330BInstruct2507 = NebiusModel(
+    modelID: "Qwen/Qwen3-30B-A3B-Instruct-2507",
+    capabilities: [.toolCalling, .structuredOutput]
+  )
+
+  /// Qwen/Qwen3.8-27B
+  public static let qwen3827B = NebiusModel(
+    modelID: "Qwen/Qwen3.8-27B",
+    capabilities: [.vision, .toolCalling, .reasoning]
+  )
+
+  /// deepseek-ai/DeepSeek-V4-Pro-0813
+  public static let deepSeekV4Pro0813 = NebiusModel(
+    modelID: "deepseek-ai/DeepSeek-V4-Pro-0813",
+    capabilities: [.toolCalling, .reasoning]
+  )
+
+  /// deepseek-ai/DeepSeek-V4.1-Flash-1017
+  public static let deepSeekV41Flash1017 = NebiusModel(
+    modelID: "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    capabilities: [.vision, .toolCalling, .reasoning]
+  )
+
+  /// google/gemma-3-27b-it
+  public static let gemma327B = NebiusModel(
+    modelID: "google/gemma-3-27b-it",
+    capabilities: [.vision, .toolCalling]
+  )
+
+  /// meta-models/muse-spark-open
+  public static let museSparkOpen = NebiusModel(
+    modelID: "meta-models/muse-spark-open",
+    capabilities: [.vision, .toolCalling, .reasoning]
+  )
+
+  /// moonshotai/Kimi-K3
+  public static let kimiK3 = NebiusModel(
+    modelID: "moonshotai/Kimi-K3",
+    capabilities: [.vision, .toolCalling, .reasoning]
+  )
+
+  /// moonshotai/Kimi-K3.1-Pro
+  public static let kimiK31Pro = NebiusModel(
+    modelID: "moonshotai/Kimi-K3.1-Pro",
+    capabilities: [.vision, .toolCalling, .reasoning]
+  )
+
+  /// nvidia/Nemotron-3-Ultra-550b-a55b
+  public static let nemotron3Ultra550B = NebiusModel(
+    modelID: "nvidia/Nemotron-3-Ultra-550b-a55b",
+    capabilities: [.toolCalling, .reasoning]
+  )
+
+  /// nvidia/Nemotron-3.5-Super-VL
+  public static let nemotron35SuperVL = NebiusModel(
+    modelID: "nvidia/Nemotron-3.5-Super-VL",
+    capabilities: [.vision, .toolCalling, .reasoning]
+  )
+
+  /// nvidia/Nemotron-3_5-Lightning
+  public static let nemotron35Lightning = NebiusModel(
+    modelID: "nvidia/Nemotron-3_5-Lightning",
+    capabilities: .fullText
+  )
+
+  /// openai/gpt-oss-120b
+  public static let gptOSS120B = NebiusModel(
+    modelID: "openai/gpt-oss-120b",
+    capabilities: .fullText
+  )
+
+  /// reflection/beam
+  public static let reflectionBeam = NebiusModel(
+    modelID: "reflection/beam",
+    capabilities: [.toolCalling, .reasoning]
+  )
+
+  /// zai-org/GLM-5.2
+  public static let glm52 = NebiusModel(
+    modelID: "zai-org/GLM-5.2",
+    capabilities: [.toolCalling, .reasoning]
+  )
+
+  /// zai-org/GLM-5.3
+  public static let glm53 = NebiusModel(
+    modelID: "zai-org/GLM-5.3",
+    capabilities: [.toolCalling, .reasoning]
+  )
+
+  /// zai-org/GLM-5.3-Flash
+  public static let glm53Flash = NebiusModel(
+    modelID: "zai-org/GLM-5.3-Flash",
+    capabilities: [.vision, .toolCalling, .reasoning]
+  )
+
+  // Unavailable migration declarations provide Xcode errors and replacement fix-its.
+  /// Removed from the selectable catalog; migrate to `.qwen330BInstruct2507`.
+  @available(*, unavailable, renamed: "qwen330BInstruct2507", message: "Qwen/Qwen3-235B-A22B-Instruct-2507 was removed ahead of the 2026-11-09 Serverless shutdown. Use .qwen330BInstruct2507 (Qwen/Qwen3-30B-A3B-Instruct-2507).")
+  public static var qwen3235BInstruct2507: NebiusModel {
+    fatalError("Removed model cannot be selected")
+  }
+
+  /// Removed from the selectable catalog; migrate to `.qwen3827B`.
+  @available(*, unavailable, renamed: "qwen3827B", message: "Qwen/Qwen3.5-397B-A17B was removed ahead of the 2026-11-09 Serverless shutdown. Use .qwen3827B (Qwen/Qwen3.8-27B).")
+  public static var qwen35Large: NebiusModel {
+    fatalError("Removed model cannot be selected")
+  }
+
+  /// Removed from the selectable catalog; migrate to `.deepSeekV41Flash1017`.
+  @available(*, unavailable, renamed: "deepSeekV41Flash1017", message: "deepseek-ai/DeepSeek-V4-Flash-0731 was removed ahead of the 2026-11-09 Serverless shutdown. Use .deepSeekV41Flash1017 (deepseek-ai/DeepSeek-V4.1-Flash-1017).")
+  public static var deepSeekV4Flash0731: NebiusModel {
+    fatalError("Removed model cannot be selected")
+  }
+
+  /// Removed from the selectable catalog; migrate to `.deepSeekV4Pro0813`.
+  @available(*, unavailable, renamed: "deepSeekV4Pro0813", message: "deepseek-ai/DeepSeek-V4-Pro was removed ahead of the 2026-11-09 Serverless shutdown. Use .deepSeekV4Pro0813 (deepseek-ai/DeepSeek-V4-Pro-0813).")
+  public static var deepSeekV4Pro: NebiusModel {
+    fatalError("Removed model cannot be selected")
+  }
+
+  /// Removed from the selectable catalog; migrate to `.deepSeekV41Flash1017`.
+  @available(*, unavailable, renamed: "deepSeekV41Flash1017", message: "deepseek-ai/DeepSeek-V4.1-Flash was removed ahead of the 2026-11-09 Serverless shutdown. Use .deepSeekV41Flash1017 (deepseek-ai/DeepSeek-V4.1-Flash-1017).")
+  public static var deepSeekV41Flash: NebiusModel {
+    fatalError("Removed model cannot be selected")
+  }
+
+  /// Removed from the selectable catalog; migrate to `.kimiK3`.
+  @available(*, unavailable, renamed: "kimiK3", message: "moonshotai/Kimi-K2.6 was removed ahead of the 2026-11-09 Serverless shutdown. Use .kimiK3 (moonshotai/Kimi-K3).")
+  public static var kimiK26: NebiusModel {
+    fatalError("Removed model cannot be selected")
+  }
+
+  /// Removed from the selectable catalog; migrate to `.kimiK3`.
+  @available(*, unavailable, renamed: "kimiK3", message: "moonshotai/Kimi-K2.7-Code was removed ahead of the 2026-11-09 Serverless shutdown. Use .kimiK3 (moonshotai/Kimi-K3).")
+  public static var kimiK27Code: NebiusModel {
+    fatalError("Removed model cannot be selected")
+  }
+
+  /// Removed from the selectable catalog; migrate to `.nemotron35Lightning`.
+  @available(*, unavailable, renamed: "nemotron35Lightning", message: "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B was removed ahead of the 2026-11-09 Serverless shutdown. Use .nemotron35Lightning (nvidia/Nemotron-3_5-Lightning).")
+  public static var nemotron3Nano30B: NebiusModel {
+    fatalError("Removed model cannot be selected")
+  }
+
+  /// Removed from the selectable catalog; migrate to `.nemotron35SuperVL`.
+  @available(*, unavailable, renamed: "nemotron35SuperVL", message: "nvidia/nemotron-3-super-120b-a12b was removed ahead of the 2026-11-09 Serverless shutdown. Use .nemotron35SuperVL (nvidia/Nemotron-3.5-Super-VL).")
+  public static var nemotron3Super120B: NebiusModel {
+    fatalError("Removed model cannot be selected")
+  }
+
+  /// Removed from the selectable catalog; migrate to `.nemotron35SuperVL`.
+  @available(*, unavailable, renamed: "nemotron35SuperVL", message: "openbmb/MiniCPM-V-4_5 was removed ahead of the 2026-11-09 Serverless shutdown. Use .nemotron35SuperVL (nvidia/Nemotron-3.5-Super-VL).")
+  public static var miniCPMV45: NebiusModel {
+    fatalError("Removed model cannot be selected")
+  }
+
+  /// Removed from the selectable catalog; migrate to `.glm53`.
+  @available(*, unavailable, renamed: "glm53", message: "zai-org/GLM-5.1 was removed ahead of the 2026-11-09 Serverless shutdown. Use .glm53 (zai-org/GLM-5.3).")
+  public static var glm51: NebiusModel {
+    fatalError("Removed model cannot be selected")
   }
 }
